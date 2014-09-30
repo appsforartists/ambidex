@@ -2,7 +2,7 @@
  * @jsx React.DOM
  */
 
-var React = require("react");
+var React = require(MODULES_PATH + "react");
 
 var Scaffold = React.createClass(
   {

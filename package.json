@@ -3,6 +3,17 @@
   "version": "0.0.0",
   "description": "Effortlessly host your React app on both the client and the server.  Some call it isomorphic JavaScript - we call it Ambidex.",
   "main": "src/init.js",
+  "devDependencies": {
+    "loader-utils": "0.2.3",
+    "my-local-ip": "git+https://github.com/appsforartists/my-local-ip",
+    "react-hot-loader": "0.3.0",
+    "webpack-dev-server": "1.4.10"
+  },
+  "peerDependencies": {
+    "react-router": "git+https://github.com/karlmikko/react-router",
+    "react-tap-event-plugin": "0.1",
+    "react": "0.11"
+  },
   "dependencies": {
     "autoprefixer-loader": "0.1.1",
     "css-loader": "0.7.1",
@@ -11,10 +22,6 @@
     "mach": "0.12.0",
     "node-jsx": "0.11.0",
     "prfun": "1.0.0",
-    "react": "0.11.1",
-    "react-router": "git+https://github.com/karlmikko/react-router",
-    "react-tap-event-plugin": "0.1.1",
-    "rimraf": "2.2.8",
     "sass-loader": "0.2.0",
     "style-loader": "0.7.0",
     "webpack": "1.3"
@@ -29,11 +36,5 @@
   "contributors": [
     "Brenton Simpson <bresimpson@ebay.com> (http://appsforartists.com)"
   ],
-  "license": "Proprietary",
-  "devDependencies": {
-    "loader-utils": "0.2.3",
-    "my-local-ip": "git+https://github.com/appsforartists/my-local-ip",
-    "react-hot-loader": "0.3.0",
-    "webpack-dev-server": "1.4.10"
-  }
+  "license": "Proprietary"
 }

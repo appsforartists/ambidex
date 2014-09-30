@@ -1,6 +1,6 @@
-var React = require("react");
+var React = require(MODULES_PATH + "react");
 
-require("react-tap-event-plugin")();
+require(MODULES_PATH + "react-tap-event-plugin")();
 
 var containerSelector = "body";
 
@@ -12,7 +12,7 @@ var mountReact = function() {
 
   } else {
     React.renderComponent(
-      require("./routes.jsx"),
+      require(ROUTES_PATH),
       container
     );
 

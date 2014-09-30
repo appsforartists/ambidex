@@ -6,62 +6,78 @@ browser with [ReactRouter](https://github.com/rackt/react-router).
 Instantiate Ambidex like this:
 
 ```javascript
-var ambidex = new Ambidex({
-  // You can follow convention and pass in a reference to the location of 
-  // settings.js, Routes.jsx, and Scaffold.jsx
-
-  "localPath":                _dirname,
-
-
-  // or you can specify them individually:
-
-  "settings":                 {
-                                "NAME":                           "My Awesome App",
-                                "SHORT_NAME":                     "my_awesome_app",
-                                "STATIC_URL":                     "/static/",
-                                "FAV_ICON_URL":                   "/static/logo.svg",
-                                "HOST":                           "example.appspot.com",
-                                "PORT":                           "80",                   // port that goes in your browser's address bar
-                                "VM_PORT":                        "8080",                 // port that the LB requests from the VM (optional)
-                                "ENABLE_HOT_MODULE_REPLACEMENT":  true
-                              },
-
-  "routes":                   <Routes
-                                location = "history"
-                              >
-                                <Route
-                                  path    = "/"
-                                  handler = { require('./Main.jsx') }
-                                >
-                                  <Route
-                                    path    = "/"
-                                    name    = "home"
-                                    handler = { require('./Home.jsx') }
-                                  />
-                                </Route>
-                              </Routes>,
-
-  "scaffold":                 // This is the template that renders the HTML page that contains
-                              // your app.  If you'd like to override it with your own, pass
-                              // it in here.  For a sample, look at [Scaffold.jsx](./blob/master/src/Scaffold.jsx).
-
-                              require("./Scaffold.jsx"),
+var ambidex = new Ambidex(
+  {
+    "settings":                 {
+                                  "NAME":                           "My Awesome App",
+                                  "SHORT_NAME":                     "my_awesome_app",
+                                  "STATIC_URL":                     "/static/",
+                                  "FAV_ICON_URL":                   "/static/logo.svg",
+                                  "HOST":                           "example.appspot.com",
+                                  "PORT":                           "80",                   // the port that goes in your browser's address bar
+                                  "VM_PORT":                        "8080",                 // the port that the LB requests from the VM (optional)
+                                  "ENABLE_HOT_MODULE_REPLACEMENT":  true,
+                                  
+                                  "FILESYSTEM_PATHS":               {
+                                                                      "BASE":     __dirname,              // the path all these others are relative to
+                                                                      "ROUTES":           "Routes.jsx",
+                                                                      "STYLES":           "styles.scss",
+                                                                      "BUNDLES":          "../bundles/",  // where your concatenated scripts and styles will be stored
 
 
-  "middlewareInjector":       // Use this if you want to inject other middleware onto the stack
-                              // before Ambidex is added
+                                                                      // For the time being, in order to prevent React or ReactRouter from
+                                                                      // being imported twice, you have to tell us where your copies live.
+                                                                      //
+                                                                      // TODO:
+                                                                      // This is a really gross hack that I'd like to remove in the future.
+                                                                      
+                                                                      "MODULES":          "../node_modules/",
 
-                              function (stack) {
-                                stack.use(
-                                  myCustomMiddleware
-                                )
-                              },
 
-  "shouldServeImmediately":   // This controls whether Ambidex tries to serve itself or 
-                              // simply returns a reference for you to serve with mach.serve.
-                              // It defaults to true.
-                              false
-});   
+                                                                      // This is the template that renders the HTML page that contains
+                                                                      // your app.  If you omit it, Ambidex will use its default.
+                                                                      //
+                                                                      // Custom scaffolds probably won't be much more useful than 
+                                                                      // [the default](./blob/master/src/Scaffold.jsx) until there
+                                                                      // are hooks to customize Webpack Settings
+
+                                                                      "SCAFFOLD":         "Scaffold.jsx"
+                                                                    },
+
+                                  "GLOBAL_CONSTANTS":               {
+                                                                      "SHARED":   {
+                                                                                    "SERVER_IP":    require("my-local-ip")(),
+                                                                                  },
+
+                                                                      "SERVER":   {
+                                                                                    "IN_BROWSER":   false,
+                                                                                  },
+
+                                                                      "CLIENT":   {
+                                                                                    "IN_BROWSER":   true,
+                                                                                  }
+                                                                    },
+
+                                  "SERVER_ONLY_MODULE_NAMES":       [
+                                                                      "jsdom"
+                                                                    ]
+                                },
+
+    "middlewareInjector":       // Use this if you want to inject other middleware onto the stack
+                                // before Ambidex's route handler
+
+                                function (stack) {
+                                  stack.use(
+                                    myCustomMiddleware
+                                  )
+                                },
+
+    "shouldServeImmediately":   // This controls whether Ambidex tries to serve itself or 
+                                // simply returns a reference for you to serve with mach.serve.
+                                // It defaults to true.
+                                false
+  }
+);   
 
 
 // If you disable shouldServeImmediately, you can start the server like this:

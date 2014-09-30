@@ -1,9 +1,68 @@
 var Webpack = require("webpack");
+var Lazy    = require("lazy.js");
 
-var settings = require("./webpackSettings.js");
-
-// Lets us dynamically generate a settings object to enable things like Hot Module Replacement
 function getSettings (options) {
+  var settings = {
+    "entry":      {},
+
+    "resolve":    {
+                    "extensions": [
+                      "",
+                      ".js",
+                      ".jsx",
+                      ".scss"
+                    ]
+                  },
+
+    "module":     {
+                    "loaders":  [
+                                  {
+                                    "test":   /\.jsx$/,
+                                    "loader": "jsx-loader?harmony"
+                                  },
+                                  {
+                                    "test":   /\.scss$/,
+                                    "loader": "style-loader!css-loader!autoprefixer-loader!sass-loader"
+                                  }
+                                ]
+                  },
+
+    "output":     {
+                    "filename":       "[name].js",
+                    "chunkFilename":  "chunk_[id].js",
+                    "publicPath":     "/bundles/"
+                  },
+
+    "plugins":    [
+                    new Webpack.optimize.DedupePlugin(),
+                    new Webpack.optimize.OccurenceOrderPlugin(),
+                  ],
+  };
+
+  if (options.hasOwnProperty("paths")) {
+
+    if (options.paths.hasOwnProperty("BASE"))
+      settings.context = options.paths["BASE"];
+
+    if (options.paths.hasOwnProperty("BUNDLES"))
+      settings.output.path = options.paths["BUNDLES"];
+
+
+    Lazy(options.paths).each(
+      (value, key) => {
+                        key = key.toLowerCase();
+
+                        if (!value.endsWith("/")) {
+                          settings.entry[key] = Array.isArray(settings.entry[key])
+                            ? settings.entry[key]
+                            : [];
+
+                          settings.entry[key].push(value);
+                        }
+                      }
+    );
+  }
+
   if (options.hasOwnProperty("devServerOrigin")) {
 
     // Add the HMR client to each exported bundle
@@ -32,9 +91,22 @@ function getSettings (options) {
 
   }
 
+  if (options.hasOwnProperty("constants")) {
+    settings.plugins.push(
+      new Webpack.DefinePlugin(options.constants)
+    );
+  }
+
+  if (options.hasOwnProperty("ignoredModuleNames")) {
+    settings.plugins.push(
+      new Webpack.IgnorePlugin(
+        RegExp(options.ignoredModuleNames.join("|"))
+      )
+    );
+  }
+
   if (options.hasOwnProperty("minimizeFileSize") && options.minimizeFileSize) {
     settings.plugins.push(
-      new Webpack.optimize.OccurenceOrderPlugin(),
       new Webpack.optimize.UglifyJsPlugin(
         {
           "output":   {
