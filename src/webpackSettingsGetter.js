@@ -39,10 +39,18 @@ function getSettings (options) {
                   ],
   };
 
-  if (options.hasOwnProperty("paths")) {
+  // `settings.context` tells Webpack where to look up its relative paths.
+  // This includes things you wouldn't expect, like the NPM modules for each
+  // loader.
+  //
+  // Since `options.paths` already gives us absolute paths to our external
+  // dependencies, we set `context` to our own `__dirname`.  This makes sure
+  // the dependencies are always loaded, even if our caller doesn't have them
+  // installed.
 
-    if (options.paths.hasOwnProperty("BASE"))
-      settings.context = options.paths["BASE"];
+  settings.context = __dirname;
+
+  if (options.hasOwnProperty("paths")) {
 
     if (options.paths.hasOwnProperty("BUNDLES"))
       settings.output.path = options.paths["BUNDLES"];
