@@ -210,20 +210,22 @@ Ambidex.prototype._initWebpack = function () {
   var constants = settings.GLOBAL_CONSTANTS;
 
   if (constants) {
-    var sharedConstants = constants["SHARED"];
-    var serverConstants = constants["SERVER"];
-    var clientConstants = constants["CLIENT"];
+    // Make a shallow copy so we don't end up with a loop when we export `settings`
+    var sharedConstants = Lazy(constants["SHARED"]).toObject();
+    var serverConstants = Lazy(constants["SERVER"]).toObject();
+    var clientConstants = Lazy(constants["CLIENT"]).toObject();
 
     if (
          !constants.hasOwnProperty("SHARED")
       && !constants.hasOwnProperty("SERVER")
       && !constants.hasOwnProperty("CLIENT")
     ) {
-      sharedConstants = constants;
+      sharedConstants = Lazy(constants).toObject();
     }
 
     sharedConstants["ROUTES_PATH"]  = self._get("routesPath");
     sharedConstants["MODULES_PATH"] = self._get("modulesPath");
+    sharedConstants["settings"]     = self._get("settings");
 
     webpackSettingsOptions.constants = Lazy(clientConstants).defaults(sharedConstants).map(
       // Webpack `eval`s its constants, so we have to stringify them first
