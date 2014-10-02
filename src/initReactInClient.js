@@ -4,7 +4,7 @@ require(MODULES_PATH + "react-tap-event-plugin")();
 
 var containerSelector = "body";
 
-var mountReact = function() {
+var initReact = function() {
   var container = document.querySelector(containerSelector);
 
   if (!container) {
@@ -20,7 +20,7 @@ var mountReact = function() {
   }
 };
 
-if (!mountReact()) {
+if (!initReact()) {
   window.addEventListener(
     "DOMContentLoaded",
     mountReact

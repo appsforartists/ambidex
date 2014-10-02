@@ -1,6 +1,8 @@
 var Webpack = require("webpack");
 var Lazy    = require("lazy.js");
 
+var FileNameReplacementPlugin = require("./FileNameReplacementPlugin.js");
+
 function getSettings (options) {
   var settings = {
     "entry":      {},
@@ -17,7 +19,7 @@ function getSettings (options) {
     "module":     {
                     "loaders":  [
                                   {
-                                    "test":   /\.jsx$/,
+                                    "test":   /\.jsx?$/,
                                     "loader": "jsx-loader?harmony"
                                   },
                                   {
@@ -34,6 +36,7 @@ function getSettings (options) {
                   },
 
     "plugins":    [
+                    new FileNameReplacementPlugin("Ambidex/src/init.js", "Ambidex/src/Ambidex.client.js"),
                     new Webpack.optimize.DedupePlugin(),
                     new Webpack.optimize.OccurenceOrderPlugin(),
                   ],

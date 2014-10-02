@@ -27,6 +27,7 @@ var mach                    = require("mach");
 var Lazy                    = require("lazy.js");
 var Webpack                 = require("webpack");
 var WebpackDevServer        = require("webpack-dev-server");
+var locals                  = require("./locals.js").getModule();
 
 // See _importModulesFromCaller
 var React, ReactRouter;
@@ -48,13 +49,13 @@ function Ambidex (argumentDict) {
   self._verifyPaths(
 
   ).then(
-    () =>  self._initStack()
+    () => self._initStack()
 
   ).then(
-    () =>  self._initWebpack()
+    () => self._initWebpack()
 
   ).then(
-    () =>  self._importModulesFromCaller()
+    () => self._importModulesFromCaller()
 
   ).then(
     () => {
@@ -65,7 +66,7 @@ function Ambidex (argumentDict) {
           }
   ).catch(
     (error) =>  {
-                  console.error(error);
+                  console.error(error.stack);
                   throw error;
                 }
   );
@@ -190,7 +191,7 @@ Ambidex.prototype._initWebpack = function () {
 
   var webpackSettingsOptions  = {
     "paths":    {
-                  "JSX":      __dirname + "/client.js",
+                  "JSX":      __dirname + "/initReactInClient.js",
                   "BASE":     self._get("basePath"),
                   "STYLES":   self._get("stylesPath"),
                   "BUNDLES":  self._get("bundlesPath"),
@@ -225,7 +226,9 @@ Ambidex.prototype._initWebpack = function () {
 
     sharedConstants["ROUTES_PATH"]  = self._get("routesPath");
     sharedConstants["MODULES_PATH"] = self._get("modulesPath");
-    sharedConstants["settings"]     = self._get("settings");
+
+    // Server settings are stored in a context local whenever user code is run
+    clientConstants["settings"] = settings;
 
     webpackSettingsOptions.constants = Lazy(clientConstants).defaults(sharedConstants).map(
       // Webpack `eval`s its constants, so we have to stringify them first
@@ -274,7 +277,7 @@ Ambidex.prototype._initWebpack = function () {
     ).catch(
       function (error) {
         console.error("Error packing bundles with Webpack:");
-        console.error(error);
+        console.error(error.stack);
       }
     );
   }
@@ -302,10 +305,9 @@ Ambidex.prototype._initStack = function () {
 // so we return a closure to preserve access to `self`
 Ambidex.prototype._getRequestProcessor = function () {
   var self      = this;
+  var settings  = self._get("settings");
 
   return function (request) {
-    var settings  = self._get("settings");
-
     var styleProp  = {};
     var scriptProp = {};
 
@@ -323,9 +325,17 @@ Ambidex.prototype._getRequestProcessor = function () {
 
     return Promise.all(
       [
-        ReactRouter.renderRoutesToString(
-          self._get("routes"),
-          request.path
+        // Context locals enable user-supplied code to access properties from Ambidex
+        // in a scalable way.
+        //
+        // User code can call `Ambidex.getFromSettings` to access any property in
+        // settings from anywhere within the context created by `runWithLocal`.
+        locals.runWithLocal(
+          () => ReactRouter.renderRoutesToString(
+                  self._get("routes"),
+                  request.path
+                ),
+          settings
         ),
 
         // If webpack is running, block til it's ready to return
@@ -360,7 +370,7 @@ Ambidex.prototype._getRequestProcessor = function () {
       }
     ).catch(
       function (error) {
-        console.error(error);
+        console.error(error.stack);
 
         return {
           "status":   error.httpStatus,
@@ -411,16 +421,18 @@ Ambidex.prototype._startServing = function () {
         }
       ).catch(
         function (error) {
-          console.error(error);
+          console.error(error.stack);
           process.exit();
         }
       );
     }
 
   } catch (error) {
-    console.error("Couldn't start " + settings.NAME + " on port " + settings.PORT + " because");
-    console.error(error);
+    console.error("Couldn't start " + settings.NAME + " on port " + settings.PORT + " because ");
+    console.error(error.stack);
   }
 };
+
+Ambidex.getFromSettings = require("./getGetFromSettings.js")(locals.getLocalFromCurrentStack);
 
 module.exports = Ambidex;

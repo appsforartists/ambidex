@@ -7,4 +7,4 @@ require("node-jsx").install(
   }
 );
 
-module.exports = require("./server.js");
+module.exports = require("./Ambidex.server.js");
