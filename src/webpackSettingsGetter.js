@@ -1,6 +1,5 @@
-var Webpack = require("webpack");
-var Lazy    = require("lazy.js");
-
+var Webpack                   = require("webpack");
+var Lazy                      = require("lazy.js");
 var FileNameReplacementPlugin = require("./FileNameReplacementPlugin.js");
 
 function getSettings (options) {
@@ -32,11 +31,12 @@ function getSettings (options) {
     "output":     {
                     "filename":       "[name].js",
                     "chunkFilename":  "chunk_[id].js",
-                    "publicPath":     "/bundles/"
+                    "publicPath":     "/bundles/",
+                    "pathinfo":       true
                   },
 
     "plugins":    [
-                    new FileNameReplacementPlugin("Ambidex/src/init.js", "Ambidex/src/Ambidex.client.js"),
+                    new FileNameReplacementPlugin(".server.js", ".client.js"),
                     new Webpack.optimize.DedupePlugin(),
                     new Webpack.optimize.OccurenceOrderPlugin(),
                   ],
@@ -76,12 +76,14 @@ function getSettings (options) {
 
   if (options.hasOwnProperty("devServerOrigin")) {
 
-    // Add the HMR client to each exported bundle
+    // Add the HMR client to the first exported bundle
     for (var bundleName in settings.entry) {
       settings.entry[bundleName].push(
         "webpack-dev-server/client?" + options.devServerOrigin, // e.g. localhost:8081
         "webpack/hot/dev-server"
       );
+
+      break;
     }
 
     settings.output.publicPath = options.devServerOrigin + settings.output.publicPath;

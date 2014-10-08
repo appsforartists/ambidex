@@ -1,9 +1,10 @@
 {
-  "name": "Ambidex",
+  "name": "ambidex",
   "version": "0.0.0",
   "description": "Effortlessly host your React app on both the client and the server.  Some call it isomorphic JavaScript - we call it Ambidex.",
   "files": ["src"],
-  "main": "src/init.js",
+  "browser": "src/init.client.js",
+  "main": "src/init.server.js",
   "devDependencies": {
     "loader-utils": "0.2.3",
     "my-local-ip": "git+https://github.com/appsforartists/my-local-ip",
@@ -11,7 +12,7 @@
     "webpack-dev-server": "1.4.10"
   },
   "peerDependencies": {
-    "react-router": "git+https://github.com/karlmikko/react-router",
+    "react-router": "0.9",
     "react-tap-event-plugin": "0.1",
     "react": "0.11"
   },

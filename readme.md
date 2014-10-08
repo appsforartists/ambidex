@@ -6,6 +6,8 @@ browser with [ReactRouter](https://github.com/rackt/react-router).
 Instantiate Ambidex like this:
 
 ```javascript
+var { Ambidex } = require("ambidex").forModule(module);
+
 var ambidex = new Ambidex(
   {
     "settings":                 {
@@ -20,19 +22,10 @@ var ambidex = new Ambidex(
                                   
                                   "FILESYSTEM_PATHS":               {
                                                                       "BASE":     __dirname,              // the path all these others are relative to
-                                                                      "ROUTES":           "Routes.jsx",
+                                                                      "ROUTES":           "Routes.jsx",   // this should be an instance of AmbidexRoutes
                                                                       "STYLES":           "styles.scss",
                                                                       "BUNDLES":          "../bundles/",  // where your concatenated scripts and styles will be stored
-
-
-                                                                      // For the time being, in order to prevent React or ReactRouter from
-                                                                      // being imported twice, you have to tell us where your copies live.
-                                                                      //
-                                                                      // TODO:
-                                                                      // This is a really gross hack that I'd like to remove in the future.
                                                                       
-                                                                      "MODULES":          "../node_modules/",
-
 
                                                                       // This is the template that renders the HTML page that contains
                                                                       // your app.  If you omit it, Ambidex will use its default.
