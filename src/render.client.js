@@ -1,16 +1,15 @@
-var ambidexRoutes = require(ROUTES_PATH);
+var React                   = require("react/addons");
+var injectTapEventPlugin    = require("react-tap-event-plugin");
+var curryRoutesWithSettings = require("./curryRoutesWithSettings.js");
 
-if (!ambidexRoutes._modulesFromParent)
-  throw new Error("settings.FILESYSTEMS_PATHS[\"ROUTES\"] must be an instance of <AmbidexRoutes>.  It's a drop-in replacement for ReactRouter's <Routes>.");
-
-var {
-  React,
-  injectTapEventPlugin
-}                       = ambidexRoutes._modulesFromParent;
-
-injectTapEventPlugin();
+var routes = curryRoutesWithSettings(
+  require(ROUTES_PATH),
+  __ambidexSettings
+)
 
 var containerSelector = "body";
+
+injectTapEventPlugin();
 
 var mountReact = function() {
   var container = document.querySelector(containerSelector);
@@ -20,7 +19,7 @@ var mountReact = function() {
 
   } else {
     React.renderComponent(
-      ambidexRoutes,
+      routes,
       container
     );
 

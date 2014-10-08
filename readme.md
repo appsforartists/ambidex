@@ -6,8 +6,6 @@ browser with [ReactRouter](https://github.com/rackt/react-router).
 Instantiate Ambidex like this:
 
 ```javascript
-var { Ambidex } = require("ambidex").forModule(module);
-
 var ambidex = new Ambidex(
   {
     "settings":                 {

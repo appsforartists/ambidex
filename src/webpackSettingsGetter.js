@@ -1,6 +1,5 @@
-var Webpack                   = require("webpack");
-var Lazy                      = require("lazy.js");
-var FileNameReplacementPlugin = require("./FileNameReplacementPlugin.js");
+var Webpack = require("webpack");
+var Lazy    = require("lazy.js");
 
 function getSettings (options) {
   var settings = {
@@ -36,7 +35,6 @@ function getSettings (options) {
                   },
 
     "plugins":    [
-                    new FileNameReplacementPlugin(".server.js", ".client.js"),
                     new Webpack.optimize.DedupePlugin(),
                     new Webpack.optimize.OccurenceOrderPlugin(),
                   ],
