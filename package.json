@@ -8,7 +8,7 @@
   "devDependencies": {
     "loader-utils": "0.2.3",
     "my-local-ip": "git+https://github.com/appsforartists/my-local-ip",
-    "react-hot-loader": "0.3.0",
+    "react-hot-loader": "0.4.5",
     "webpack-dev-server": "1.4.10"
   },
   "peerDependencies": {
