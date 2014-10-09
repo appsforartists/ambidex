@@ -1,4 +1,14 @@
-Ambidex is a [Mach server](https://github.com/mjackson/mach) that will serve 
+### Important: this is a public repo ###
+
+Ones of the goals of Ambidex is to be publicly released on GitHub, so **don't commit anything here you wouldn't want publicized,** or that wouldn't make sense outside of eBay.
+
+### /Important ###
+
+----
+
+## Introduction ##
+
+**Ambidex** is a [Mach server](https://github.com/mjackson/mach) that will serve 
 your React-based JavaScript app on both the client and the server.  The initial 
 request is handled by the server, and subsequent requests are rendered by the 
 browser with [ReactRouter](https://github.com/rackt/react-router).
