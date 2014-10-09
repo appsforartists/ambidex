@@ -11,7 +11,7 @@
     "webpack-dev-server": "1.4.10"
   },
   "peerDependencies": {
-    "react-router": "0.9",
+    "react-router": "git+https://github.com/appsforartists/react-router",
     "react-tap-event-plugin": "0.1",
     "react": "0.11"
   },
@@ -20,7 +20,7 @@
     "css-loader": "0.7.1",
     "jsx-loader": "0.11.0",
     "lazy.js": "git+https://github.com/appsforartists/lazy.js",
-    "mach": "0.12.0",
+    "mach": "git+https://github.com/appsforartists/mach",
     "node-jsx": "0.11.0",
     "prfun": "1.0.0",
     "sass-loader": "0.2.0",
