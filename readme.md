@@ -16,7 +16,7 @@ browser with [ReactRouter](https://github.com/rackt/react-router).
 Instantiate Ambidex like this:
 
 ```javascript
-var ambidex = new Ambidex(
+new Ambidex(
   {
     "settings":                 {
                                   "NAME":                           "My Awesome App",
@@ -78,19 +78,20 @@ var ambidex = new Ambidex(
                                 // It defaults to true.
                                 false
   }
-);   
+).then(
+  (ambidex) =>  {
+                  // If you disable shouldServeImmediately, you can start the server like this:
+                  mach.serve(
+                    ambidex.stack,
+                    settings.VM_PORT || settings.PORT
+                  );
 
+                  // And if you need to access the Webpack instance, find it here:
+                  ambidex.webpack;
 
-// If you disable shouldServeImmediately, you can start the server like this:
-mach.serve(
-  ambidex.stack,
-  settings.VM_PORT || settings.PORT
+                  // Finally, if settings.ENABLE_HOT_MODULE_REPLACEMENT and shouldServeImmediately are true,
+                  // you can programatically access the Webpack Dev Server instance here:
+                  ambidex.webpackDevServer;
+                }
 );
-
-// And if you need to access the Webpack instance, find it here:
-ambidex.webpack;
-
-// Finally, if settings.ENABLE_HOT_MODULE_REPLACEMENT and shouldServeImmediately are true,
-// you can programatically access the Webpack Dev Server instance here:
-ambidex.webpackDevServer;
 ```
