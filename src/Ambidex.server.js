@@ -36,38 +36,55 @@ var curryRoutesWithSettings = require("./curryRoutesWithSettings.js");
 function Ambidex (argumentDict) {
   var self = this;
 
-  if (self === global)
-    throw new Error("You forgot the `new` in `new Ambidex(…)`!");
+  var  rejectInitializationPromise;
+  var resolveInitializationPromise;
 
-  if (!argumentDict || !arguments.length === 1)
-    throw new Error("Ambidex requires an argument dictionary to be passed in.");
-
-  self._initFromArgumentDict(argumentDict);
-
-
-  var settings  = self._get("settings");
-
-  self._verifyPaths(
-
-  ).then(
-    () => self._initStack()
-
-  ).then(
-    () => self._initWebpack()
-
-  ).then(
-    () => {
-            if (self._get("shouldServeImmediately")) {
-              process.title = settings.SHORT_NAME;
-              return self._startServing();
-            }
-          }
-  ).catch(
-    (error) =>  {
-                  console.error(error.stack);
-                  throw error;
-                }
+  var initializationPromise = new Promise(
+    function (resolve, reject) {
+       rejectInitializationPromise = reject;
+      resolveInitializationPromise = resolve;
+    }
   );
+
+  try {
+    if (self === global)
+      throw new Error("You forgot the `new` in `new Ambidex(…)`!");
+
+    if (!argumentDict || !arguments.length === 1)
+      throw new Error("Ambidex requires an argument dictionary to be passed in.");
+
+    self._initFromArgumentDict(argumentDict);
+
+
+    var settings  = self._get("settings");
+
+    self._verifyPaths(
+
+    ).then(
+      () => {
+              self._initStack();
+              self._initWebpack();
+
+              if (self._get("shouldServeImmediately")) {
+                process.title = settings.SHORT_NAME;
+                self._startServing().then(
+                  () => resolveInitializationPromise(self)
+                );
+
+              } else {
+                resolveInitializationPromise(self);
+              }
+            }
+    ).catch(
+      error =>  { throw error }
+    );
+
+    return initializationPromise;
+
+  } catch (error) {
+    console.error(error.stack);
+    rejectInitializationPromise(error);
+  }
 }
 
 Ambidex.prototype._has = function (key) {
@@ -386,44 +403,64 @@ Ambidex.prototype._getRequestProcessor = function () {
 };
 
 Ambidex.prototype._startServing = function () {
+  var self = this;
+
+  return Promise.all(
+    [
+      self._startServingWebpack(),
+      self._startServingStack(),
+    ]
+  );
+};
+
+Ambidex.prototype._startServingStack = function () {
   var self      = this;
   var settings  = self._get("settings");
 
-  try {
-    mach.serve(
-      self.stack,
-      settings.VM_PORT || settings.PORT
+  // mach.serve isn't async, but we make a promise anyway because Webpack is, and we want to be consistent.
+  return new Promise(
+    function (resolve, reject) {
+
+      try {
+        mach.serve(
+          self.stack,
+          settings.VM_PORT || settings.PORT
+        );
+
+        resolve();
+
+      } catch (error) {
+        reject(error);
+      }
+    }
+  );
+};
+
+Ambidex.prototype._startServingWebpack = function () {
+  var self      = this;
+  var settings  = self._get("settings");
+
+  if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
+    WebpackDevServer.prototype.listen = Promise.promisify(WebpackDevServer.prototype.listen);
+
+    self.webpackDevServer = new WebpackDevServer(
+      self.webpack,
+      {
+        "hot":        true,
+        "publicPath": self._webpackSettings.output.publicPath
+      }
     );
 
-    if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
-      WebpackDevServer.prototype.listen = Promise.promisify(WebpackDevServer.prototype.listen);
-
-      self.webpackDevServer = new WebpackDevServer(
-        self.webpack,
-        {
-          "hot":        true,
-          "publicPath": self._webpackSettings.output.publicPath
-        }
-      );
-
-      self.webpackDevServer.listen(
-        settings.WEBPACK_PORT,
-        settings.HOST
-      ).then(
-        function (result) {
-          console.info("Started Webpack Dev Server on " + settings.HOST + ":" + settings.WEBPACK_PORT + "…");
-        }
-      ).catch(
-        function (error) {
-          console.error(error.stack);
-          process.exit();
-        }
-      );
-    }
-
-  } catch (error) {
-    console.error("Couldn't start " + settings.NAME + " on port " + settings.PORT + " because ");
-    console.error(error.stack);
+    return self.webpackDevServer.listen(
+      settings.WEBPACK_PORT,
+      settings.HOST
+    ).then(
+      function (result) {
+        console.info("Started Webpack Dev Server on " + settings.HOST + ":" + settings.WEBPACK_PORT + "…");
+      }
+    );
+  } else {
+    return null;
   }
 };
 
