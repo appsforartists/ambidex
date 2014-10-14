@@ -41,7 +41,11 @@ function Ambidex (argumentDict) {
 
   var initializationPromise = new Promise(
     function (resolve, reject) {
-       rejectInitializationPromise = reject;
+      rejectInitializationPromise = function (error) {
+        console.error(error.stack);
+        reject(error);
+      };
+
       resolveInitializationPromise = resolve;
     }
   );
@@ -76,13 +80,12 @@ function Ambidex (argumentDict) {
               }
             }
     ).catch(
-      error =>  { throw error }
+      error =>  rejectInitializationPromise(error)
     );
 
     return initializationPromise;
 
   } catch (error) {
-    console.error(error.stack);
     rejectInitializationPromise(error);
   }
 }
