@@ -290,16 +290,28 @@ Ambidex.prototype._initWebpack = function () {
     );
   } else {
     self._webpackRan = self.webpack.run().then(
-      function (stats) {
-        console.log(stats.toString());
+      (stats) =>  {
+                    console.log(stats.toString());
 
-        var bundlesPath = self._get("bundlesPath");
+                    var bundlesPath = self._get("bundlesPath");
 
-        self._styleHtml  = fs.readFileSync(bundlesPath + "/styles.js");
-        self._scriptHtml = fs.readFileSync(bundlesPath + "/jsx.js");
+                    return [
+                      stats,
+                      fs.readFile(bundlesPath + "/styles.js"),
+                      fs.readFile(bundlesPath + "/jsx.js")
+                    ];
+                  }
+    ).then(
+      promises => Promise.all(promises)
 
-        return stats;
-      }
+    ).then(
+      (resolvedPromises) => {
+                              self._styleHTML  = resolvedPromises[1];
+                              self._scriptHTML = resolvedPromises[2];
+
+                              // pass webpackStats through, since our other return values (HTML) are already exposed on self
+                              return resolvedPromises[0];
+                            }
     ).catch(
       function (error) {
         console.error("Error packing bundles with Webpack:");
@@ -348,8 +360,8 @@ Ambidex.prototype._getRequestProcessor = function () {
     } else {
       // Inline the source if we aren't using Hot Module Replacement to reduce
       // unneccesary requests
-      styleProp.__html  = self._styleHtml;
-      scriptProp.__html = self._scriptHtml;
+      styleProp.__html  = self._styleHTML;
+      scriptProp.__html = self._scriptHTML;
     }
 
     return Promise.all(
@@ -365,7 +377,6 @@ Ambidex.prototype._getRequestProcessor = function () {
     ).then(
       function (resolvedPromises) {
 //          var renderedResult = resolvedPromises.shift();
-        var webpackStats   = resolvedPromises.shift();
 
         return mach.html(
           [
