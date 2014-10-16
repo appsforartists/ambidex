@@ -5,8 +5,7 @@
   "files": ["src"],
   "browser": "src/init.client.js",
   "main": "src/init.server.js",
-  "devDependencies": {
-    "loader-utils": "0.2.3",
+  "optionalDependencies": {
     "react-hot-loader": "0.4.5",
     "webpack-dev-server": "1.4.10"
   },
