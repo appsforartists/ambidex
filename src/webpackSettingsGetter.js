@@ -110,7 +110,7 @@ function getSettings (options) {
     );
   }
 
-  if (options.hasOwnProperty("ignoredModuleNames")) {
+  if (options.hasOwnProperty("ignoredModuleNames") && options.ignoredModuleNames.length) {
     settings.plugins.push(
       new Webpack.IgnorePlugin(
         RegExp(options.ignoredModuleNames.join("|"))
