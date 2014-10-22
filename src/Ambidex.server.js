@@ -238,46 +238,48 @@ Ambidex.prototype._initWebpack = function () {
   if (settings.SERVER_ONLY_MODULE_NAMES)
     webpackSettingsOptions.ignoredModuleNames = settings.SERVER_ONLY_MODULE_NAMES;
 
+
+
   // TODO: deprecate this and force all project-wide settings to be stored on settings
   // ROUTES_PATH can be a namespaced client constant, like __ambidexSettings
-  var constants = settings.GLOBAL_CONSTANTS;
+  var constants = settings.GLOBAL_CONSTANTS || {};
 
-  if (constants) {
-    // Make a shallow copy so we don't end up with a loop when we export `settings`
-    var sharedConstants = Lazy(constants["SHARED"]).toObject();
-    var serverConstants = Lazy(constants["SERVER"]).toObject();
-    var clientConstants = Lazy(constants["CLIENT"]).toObject();
+  // Make a shallow copy so we don't end up with a loop when we export `settings`
+  var sharedConstants = Lazy(constants["SHARED"]).toObject();
+  var serverConstants = Lazy(constants["SERVER"]).toObject();
+  var clientConstants = Lazy(constants["CLIENT"]).toObject();
 
-    if (
-         !constants.hasOwnProperty("SHARED")
-      && !constants.hasOwnProperty("SERVER")
-      && !constants.hasOwnProperty("CLIENT")
-    ) {
-      sharedConstants = Lazy(constants).toObject();
-    }
-
-    sharedConstants["ROUTES_PATH"]  = self._get("routesPath");
-
-    // server settings are passed in when self._routes is defined
-    clientConstants["__ambidexSettings"] = settings;
-
-    webpackSettingsOptions.constants = Lazy(clientConstants).defaults(sharedConstants).map(
-      // Webpack `eval`s its constants, so we have to stringify them first
-      (value, key) => [key, JSON.stringify(value)]
-    ).toObject();
-
-    Lazy(serverConstants).defaults(sharedConstants).each(
-      // Run the constants through JSON to make sure you don't end up with
-      // obscure differences between the client and server
-      (value, key) => {
-                        global[key] = JSON.parse(JSON.stringify(value));
-
-                        // Lazy will bail the first time it sees a false, so
-                        // we explicitly return true to force it to call everything
-                        return true;
-                      }
-    );
+  if (
+       !constants.hasOwnProperty("SHARED")
+    && !constants.hasOwnProperty("SERVER")
+    && !constants.hasOwnProperty("CLIENT")
+  ) {
+    sharedConstants = Lazy(constants).toObject();
   }
+
+  sharedConstants["ROUTES_PATH"]  = self._get("routesPath");
+
+  // server settings are passed in when self._routes is defined
+  clientConstants["__ambidexSettings"] = settings;
+
+  webpackSettingsOptions.constants = Lazy(clientConstants).defaults(sharedConstants).map(
+    // Webpack `eval`s its constants, so we have to stringify them first
+    (value, key) => [key, JSON.stringify(value)]
+  ).toObject();
+
+  Lazy(serverConstants).defaults(sharedConstants).each(
+    // Run the constants through JSON to make sure you don't end up with
+    // obscure differences between the client and server
+    (value, key) => {
+                      global[key] = JSON.parse(JSON.stringify(value));
+
+                      // Lazy will bail the first time it sees a false, so
+                      // we explicitly return true to force it to call everything
+                      return true;
+                    }
+  );
+
+
 
   self._webpackSettings = webpackSettingsGetter(webpackSettingsOptions);
 
