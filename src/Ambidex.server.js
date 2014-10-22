@@ -238,6 +238,8 @@ Ambidex.prototype._initWebpack = function () {
   if (settings.SERVER_ONLY_MODULE_NAMES)
     webpackSettingsOptions.ignoredModuleNames = settings.SERVER_ONLY_MODULE_NAMES;
 
+  // TODO: deprecate this and force all project-wide settings to be stored on settings
+  // ROUTES_PATH can be a namespaced client constant, like __ambidexSettings
   var constants = settings.GLOBAL_CONSTANTS;
 
   if (constants) {

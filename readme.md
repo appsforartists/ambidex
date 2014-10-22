@@ -45,20 +45,6 @@ new Ambidex(
                                                                       "SCAFFOLD":         "Scaffold.jsx"
                                                                     },
 
-                                  "GLOBAL_CONSTANTS":               {
-                                                                      "SHARED":   {
-                                                                                    "SERVER_IP":    require("my-local-ip")(),
-                                                                                  },
-
-                                                                      "SERVER":   {
-                                                                                    "IN_BROWSER":   false,
-                                                                                  },
-
-                                                                      "CLIENT":   {
-                                                                                    "IN_BROWSER":   true,
-                                                                                  }
-                                                                    },
-
                                   "SERVER_ONLY_MODULE_NAMES":       [
                                                                       "jsdom"
                                                                     ]
