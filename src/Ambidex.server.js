@@ -23,6 +23,8 @@ fs = {
   "readFile":               Promise.promisify(fs.readFile)
 };
 
+var path                    = require("path");
+
 var React                   = require("react/addons");
 var ReactRouter             = require("react-router");
 var mach                    = require("mach");
@@ -304,8 +306,14 @@ Ambidex.prototype._initWebpack = function () {
 
                     return [
                       stats,
-                      fs.readFile(bundlesPath + "/styles.js"),
-                      fs.readFile(bundlesPath + "/jsx.js")
+
+                      fs.readFile(
+                        path.resolve(bundlesPath, "styles.js")
+                      ),
+
+                      fs.readFile(
+                        path.resolve(bundlesPath, "jsx.js")
+                      )
                     ];
                   }
     ).then(
