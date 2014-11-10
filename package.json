@@ -11,7 +11,7 @@
   },
   "peerDependencies": {
     "react-router": "git+https://github.com/appsforartists/react-router",
-    "react-tap-event-plugin": "0.1",
+    "react-tap-event-plugin": "0.1.1",
     "react": "0.11"
   },
   "dependencies": {
