@@ -82,8 +82,6 @@ function getSettings (options) {
         "webpack-dev-server/client?" + options.devServerOrigin, // e.g. localhost:8081
         "webpack/hot/dev-server"
       );
-
-      break;
     }
 
     settings.output.publicPath = options.devServerOrigin + settings.output.publicPath;
