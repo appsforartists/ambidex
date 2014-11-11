@@ -342,7 +342,6 @@ Ambidex.prototype._initStack = function () {
   self.stack = new mach.stack();
   self.stack.use(mach.logger);
   self.stack.use(mach.gzip);
-  self.stack.use(mach.contentCharSet);
 
   var middlewareInjector = self._get("middlewareInjector");
   if (middlewareInjector) {
@@ -362,7 +361,7 @@ Ambidex.prototype._getRequestProcessor = function () {
   var settings  = self._get("settings");
   var routes    = self._get("routes");
 
-  return function (request) {
+  return function (connection) {
     var styleProp  = {};
     var scriptProp = {};
 
@@ -393,7 +392,7 @@ Ambidex.prototype._getRequestProcessor = function () {
       function (resolvedPromises) {
 //          var renderedResult = resolvedPromises.shift();
 
-        return mach.html(
+        return connection.html(
           [
             "<!DOCTYPE html>",
 
