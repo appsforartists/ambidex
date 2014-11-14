@@ -342,6 +342,7 @@ Ambidex.prototype._initStack = function () {
   self.stack = new mach.stack();
   self.stack.use(mach.logger);
   self.stack.use(mach.gzip);
+  self.stack.use(mach.charset, "utf-8");
 
   var middlewareInjector = self._get("middlewareInjector");
   if (middlewareInjector) {

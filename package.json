@@ -19,7 +19,7 @@
     "css-loader": "0.7.1",
     "jsx-loader": "0.11.0",
     "lazy.js": "git+https://github.com/appsforartists/lazy.js",
-    "mach": "git+https://github.com/appsforartists/mach",
+    "mach": "1.0",
     "node-jsx": "0.11.0",
     "prfun": "1.0.0",
     "sass-loader": "0.2.0",
