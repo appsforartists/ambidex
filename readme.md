@@ -21,7 +21,6 @@ new Ambidex(
     "settings":                 {
                                   "NAME":                           "My Awesome App",
                                   "SHORT_NAME":                     "my_awesome_app",
-                                  "STATIC_URL":                     "/static/",
                                   "FAV_ICON_URL":                   "/static/logo.svg",
                                   "HOST":                           "example.appspot.com",
                                   "PORT":                           "80",                   // the port that goes in your browser's address bar
@@ -47,7 +46,19 @@ new Ambidex(
 
                                   "SERVER_ONLY_MODULE_NAMES":       [
                                                                       "jsdom"
-                                                                    ]
+                                                                    ],
+
+                                  "CUSTOM_SETTINGS":                {
+                                                                      // Put whatever you like in here.  This is your own namespace to
+                                                                      // pass application-specific data through Ambidex and back to your
+                                                                      // React components.
+                                                                      //
+                                                                      // Remember, because your routes need to compile back to JavaScript
+                                                                      // to be run on the client, anything you include here will need to
+                                                                      // survive JSON serialization.
+                                                                      
+                                                                      "STATIC_URL":       "/static/"
+                                                                    }
                                 },
 
     "middlewareInjector":       // Use this if you want to inject other middleware onto the stack

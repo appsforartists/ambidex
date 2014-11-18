@@ -3,7 +3,7 @@ var injectTapEventPlugin    = require("react-tap-event-plugin");
 var curryRoutesWithSettings = require("./curryRoutesWithSettings.js");
 
 var routes = curryRoutesWithSettings(
-  require(ROUTES_PATH),
+  require(__ambidexRoutesPath),
   __ambidexSettings
 )
 
