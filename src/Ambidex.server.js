@@ -337,17 +337,6 @@ Ambidex.prototype._getRequestProcessor = function () {
 
     var bundlesURL = self._webpackSettings.output.publicPath;
 
-    if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
-      styleProp.src  = bundlesURL + "styles.js";
-      scriptProp.src = bundlesURL + "jsx.js";
-
-    } else {
-      // Inline the source if we aren't using Hot Module Replacement to reduce
-      // unneccesary requests
-      styleProp.__html  = self._styleHTML;
-      scriptProp.__html = self._scriptHTML;
-    }
-
     return Promise.all(
       [
 //         ReactRouter.renderRoutesToString(
@@ -360,7 +349,18 @@ Ambidex.prototype._getRequestProcessor = function () {
       ]
     ).then(
       function (resolvedPromises) {
-//          var renderedResult = resolvedPromises.shift();
+//         var renderedResult = resolvedPromises.shift();
+
+        if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
+          styleProp.src  = bundlesURL + "styles.js";
+          scriptProp.src = bundlesURL + "jsx.js";
+
+        } else {
+          // Inline the source if we aren't using Hot Module Replacement to reduce
+          // unneccesary requests
+          styleProp.__html  = self._styleHTML;
+          scriptProp.__html = self._scriptHTML;
+        }
 
         return connection.html(
           [
@@ -375,9 +375,9 @@ Ambidex.prototype._getRequestProcessor = function () {
                   "favIconSrc": settings.FAV_ICON_URL,
                   "style":      styleProp,
                   "script":     scriptProp,
-//                    "body":       {
-//                                    "__html":   renderedResult.html
-//                                  }
+//                   "body":       {
+//                                   "__html":   renderedResult.html
+//                                 }
                 }
               )
             )
