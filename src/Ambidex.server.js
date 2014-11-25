@@ -33,7 +33,6 @@ var Webpack                 = require("webpack");
 var WebpackDevServer        = require("webpack-dev-server");
 
 var webpackSettingsGetter   = require("./webpackSettingsGetter.js");
-var curryRoutesWithSettings = require("./curryRoutesWithSettings.js");
 
 function Ambidex (argumentDict) {
   var self = this;
@@ -101,7 +100,7 @@ Ambidex.prototype._get = function (key) {
 };
 
 Ambidex.prototype._set = function (key, value) {
-  this["_" + key] = value;
+  return this["_" + key] = value;
 }
 
 Ambidex.prototype._initFromArgumentDict = function (argumentDict) {
@@ -208,10 +207,7 @@ Ambidex.prototype._verifyPaths = function () {
             self._set(
               "routes",
 
-              curryRoutesWithSettings(
-                require(self._get("routesPath")),
-                settings
-              )
+              require(self._get("routesPath"))
             );
           }
   );
@@ -252,6 +248,9 @@ Ambidex.prototype._initWebpack = function () {
     (value, key) => [key, JSON.stringify(value)]
   ).toObject();
 
+  // Make sure everything in `settings` is JSON-safe, so we fail consistently if we're passed unJSONifyable data
+  settings = self._set("settings", JSON.parse(webpackSettingsOptions.constants.__ambidexSettings));
+
   self._webpackSettings = webpackSettingsGetter(webpackSettingsOptions);
 
   self.webpack      = new Webpack(self._webpackSettings);
@@ -266,6 +265,10 @@ Ambidex.prototype._initWebpack = function () {
                           }
                         )
     );
+
+    // put a no-op promise here, so calls to _webpackRan.then don't fail later-on
+    self._webpackRan = Promise.resolve(null);
+
   } else {
     self._webpackRan = self.webpack.run().then(
       (stats) =>  {
@@ -337,63 +340,63 @@ Ambidex.prototype._getRequestProcessor = function () {
 
     var bundlesURL = self._webpackSettings.output.publicPath;
 
-    return Promise.all(
-      [
-//         ReactRouter.renderRoutesToString(
-//           routes,
-//           request.path
-//         ),
 
-        // If webpack is running, block til it's ready to return
-        self._webpackRan
-      ]
-    ).then(
-      function (resolvedPromises) {
-//         var renderedResult = resolvedPromises.shift();
+    ReactRouter.run(
+      routes,
+      connection.request.path,
 
-        if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
-          styleProp.src  = bundlesURL + "styles.js";
-          scriptProp.src = bundlesURL + "jsx.js";
+      Handler => {
+        self._webpackRan.then(
+          webpackStats => {
+            if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
+              styleProp.src  = bundlesURL + "styles.js";
+              scriptProp.src = bundlesURL + "jsx.js";
 
-        } else {
-          // Inline the source if we aren't using Hot Module Replacement to reduce
-          // unneccesary requests
-          styleProp.__html  = self._styleHTML;
-          scriptProp.__html = self._scriptHTML;
-        }
+            } else {
+              // Inline the source if we aren't using Hot Module Replacement to reduce
+              // unneccesary requests
+              styleProp.__html  = self._styleHTML;
+              scriptProp.__html = self._scriptHTML;
+            }
 
-        return connection.html(
-          [
-            "<!DOCTYPE html>",
+            connection.html(
+              [
+                "<!DOCTYPE html>",
 
-            // Running ReactRouter against the <html> element is buggy,
-            // so we only render <Main> (which mounts to the <body>) with
-            // ReactRouter and do the rest as static markup with <Scaffold>
-            React.renderComponentToStaticMarkup(
-              require(self._get("scaffoldPath"))(
-                {
-                  "favIconSrc": settings.FAV_ICON_URL,
-                  "style":      styleProp,
-                  "script":     scriptProp,
-//                   "body":       {
-//                                   "__html":   renderedResult.html
-//                                 }
-                }
-              )
-            )
-          ].join("\n")
+                // Running ReactRouter against the <html> element is buggy,
+                // so we only render <Main> (which mounts to the <body>) with
+                // ReactRouter and do the rest as static markup with <Scaffold>
+                React.renderToStaticMarkup(
+                  require(self._get("scaffoldPath"))(
+                    {
+                      "favIconSrc": settings.FAV_ICON_URL,
+                      "style":      styleProp,
+                      "script":     scriptProp,
+                      "body":       {
+                                      "__html":   React.renderToString(
+                                                    <Handler
+                                                      settings = { settings }
+                                                    />
+                                                  )
+                                    }
+                    }
+                  )
+                )
+              ].join("\n")
+            );
+          }
+        ).catch(
+          function (error) {
+            console.error(error.stack);
+
+            return {
+              "status":   error.httpStatus,
+              "content": "ReactRouter errored."
+            };
+          }
         );
       }
-    ).catch(
-      function (error) {
-        console.error(error.stack);
-
-        return {
-          "status":   error.httpStatus,
-          "content": "ReactRouter errored."
-        };
-      }
-    )
+    );
   }
 };
 

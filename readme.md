@@ -29,7 +29,7 @@ new Ambidex(
                                   
                                   "FILESYSTEM_PATHS":               {
                                                                       "BASE":     __dirname,              // the path all these others are relative to
-                                                                      "ROUTES":           "Routes.jsx",   // this should be an instance of AmbidexRoutes
+                                                                      "ROUTES":           "routeTree.jsx",   
                                                                       "STYLES":           "styles.scss",
                                                                       "BUNDLES":          "../bundles/",  // where your concatenated scripts and styles will be stored
                                                                       

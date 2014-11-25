@@ -1,13 +1,10 @@
 var React                   = require("react/addons");
+var ReactRouter             = require("react-router");
 var injectTapEventPlugin    = require("react-tap-event-plugin");
-var curryRoutesWithSettings = require("./curryRoutesWithSettings.js");
 
-var routes = curryRoutesWithSettings(
-  require(__ambidexRoutesPath),
-  __ambidexSettings
-)
 
 var containerSelector = "body";
+
 
 injectTapEventPlugin();
 
@@ -18,9 +15,16 @@ var mountReact = function() {
     return false;
 
   } else {
-    React.renderComponent(
-      routes,
-      container
+    ReactRouter.run(
+      require(__ambidexRoutesPath),
+      ReactRouter.HistoryLocation,
+
+      Handler =>  React.render(
+                    <Handler
+                      settings = { __ambidexSettings }
+                    />,
+                    container
+                  )
     );
 
     return true;
