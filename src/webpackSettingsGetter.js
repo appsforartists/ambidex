@@ -76,7 +76,7 @@ function getSettings (options) {
 
   if (options.hasOwnProperty("devServerOrigin")) {
 
-    // Add the HMR client to the first exported bundle
+    // Add the HMR client to each exported bundle
     for (var bundleName in settings.entry) {
       settings.entry[bundleName].push(
         "webpack-dev-server/client?" + options.devServerOrigin, // e.g. localhost:8081
@@ -99,7 +99,6 @@ function getSettings (options) {
     settings.plugins.push(
       new Webpack.HotModuleReplacementPlugin()
     );
-
   }
 
   if (options.hasOwnProperty("constants")) {
