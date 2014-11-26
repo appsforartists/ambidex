@@ -15,7 +15,7 @@
     "react-router": "0.11"
   },
   "dependencies": {
-    "autoprefixer-loader": "0.1.1",
+    "autoprefixer-loader": "1.0",
     "css-loader": "0.7.1",
     "jsx-loader": "0.12.2",
     "lazy.js": "git+https://github.com/dtao/lazy.js#82372eceb4888703248cf581ca3d335daed791bc",
