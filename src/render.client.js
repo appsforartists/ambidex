@@ -2,6 +2,8 @@ var React                   = require("react/addons");
 var ReactRouter             = require("react-router");
 var injectTapEventPlugin    = require("react-tap-event-plugin");
 
+var HandlerWithAmbidexContext = require("./HandlerWithAmbidexContext.jsx");
+
 
 var containerSelector = "body";
 
@@ -20,9 +22,11 @@ var mountReact = function() {
       ReactRouter.HistoryLocation,
 
       Handler =>  React.render(
-                    <Handler
+                    <HandlerWithAmbidexContext
+                      Handler  = { Handler }
                       settings = { __ambidexSettings }
                     />,
+
                     container
                   )
     );

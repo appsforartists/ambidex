@@ -7,4 +7,9 @@ require("node-jsx").install(
   }
 );
 
-module.exports = require("./Ambidex.server.js");
+var Ambidex = require("./Ambidex.server.js");
+var common  = require("./init.common.js");
+
+Object.assign = Object.assign || require("react/lib/Object.assign.js");
+
+module.exports = Object.assign(Ambidex, common);

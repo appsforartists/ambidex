@@ -32,7 +32,9 @@ var Lazy                    = require("lazy.js");
 var Webpack                 = require("webpack");
 var WebpackDevServer        = require("webpack-dev-server");
 
-var webpackSettingsGetter   = require("./webpackSettingsGetter.js");
+var HandlerWithAmbidexContext = require("./HandlerWithAmbidexContext.jsx");
+
+var webpackSettingsGetter = require("./webpackSettingsGetter.js");
 
 function Ambidex (argumentDict) {
   var self = this;
@@ -374,7 +376,8 @@ Ambidex.prototype._getRequestProcessor = function () {
                       "script":     scriptProp,
                       "body":       {
                                       "__html":   React.renderToString(
-                                                    <Handler
+                                                    <HandlerWithAmbidexContext
+                                                      Handler  = { Handler }
                                                       settings = { settings }
                                                     />
                                                   )
