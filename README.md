@@ -1,11 +1,3 @@
-### Important: this is a public repo ###
-
-Ones of the goals of Ambidex is to be publicly released on GitHub, so **don't commit anything here you wouldn't want publicized,** or that wouldn't make sense outside of eBay.
-
-### /Important ###
-
-----
-
 ## Introduction ##
 
 **Ambidex** is a [Mach server](https://github.com/mjackson/mach) that will serve 
