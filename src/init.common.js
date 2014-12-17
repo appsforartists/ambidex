@@ -1,5 +1,8 @@
 module.exports = {
   "mixins": {
-              "Settings":         require("./mixins/Settings.jsx"),
+              "All":      require("./mixins/All.jsx"),
+
+              "Settings": require("./mixins/Settings.jsx"),
+              "Title":    require("./mixins/Title.jsx"),
             },
 };

@@ -1,19 +1,17 @@
 var React = require("react/addons");
 
-var SettingsMixin = require("./mixins/Settings.jsx");
+var SettingsContextMixin = require("./mixins/SettingsContext.jsx");
+var TitleContextMixin    = require("./mixins/TitleContext.jsx");
 
 var HandlerWithAmbidexContext = React.createClass(
   {
-    "childContextTypes":          SettingsMixin.contextTypes,
-
-    "getChildContext":            function () {
-                                    return {
-                                      "ambidexSettings":   this.props.settings
-                                    }
-                                  },
+    "mixins":                     [
+                                    SettingsContextMixin,
+                                    TitleContextMixin,
+                                  ],
 
     "render":                     function () {
-                                    return  <this.props.Handler />;
+                                    return <this.props.Handler />;
                                   }
   }
 );

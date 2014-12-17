@@ -7,9 +7,9 @@ require("node-jsx").install(
   }
 );
 
-var Ambidex = require("./Ambidex.server.js");
-var common  = require("./init.common.js");
+require("./polyfills.js");
 
-Object.assign = Object.assign || require("react/lib/Object.assign.js");
+var common  = require("./init.common.js");
+var Ambidex = require("./Ambidex.server.js");
 
 module.exports = Object.assign(Ambidex, common);

@@ -24,7 +24,7 @@ var Scaffold = React.createClass(
                                     return  <html>
                                               <head>
                                                 <title>
-                                                  TODO: make titles work
+                                                  { this.props.title }
                                                 </title>
                                                                       
                                                 {/* This is the magic viewport.  Don't touch it!  

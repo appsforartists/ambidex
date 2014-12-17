@@ -1,3 +1,5 @@
+require("./polyfills.js");
+
 var React                   = require("react/addons");
 var ReactRouter             = require("react-router");
 var injectTapEventPlugin    = require("react-tap-event-plugin");
@@ -23,8 +25,14 @@ var mountReact = function() {
 
       Handler =>  React.render(
                     <HandlerWithAmbidexContext
-                      Handler  = { Handler }
-                      settings = { __ambidexSettings }
+                      Handler   = { Handler }
+                      settings  = { __ambidexSettings }
+
+                      setTitle  = {
+                                    title => {
+                                      document.title = title
+                                    }
+                                  }
                     />,
 
                     container

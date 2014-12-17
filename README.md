@@ -21,11 +21,15 @@ new Ambidex(
     "settings":                 {
                                   "NAME":                           "My Awesome App",
                                   "SHORT_NAME":                     "my_awesome_app",
-                                  "FAV_ICON_URL":                   "/static/logo.svg",
+                                  
                                   "HOST":                           "example.appspot.com",
                                   "PORT":                           "80",                   // the port that goes in your browser's address bar
                                   "VM_PORT":                        "8080",                 // the port that the LB requests from the VM (optional)
+
                                   "ENABLE_HOT_MODULE_REPLACEMENT":  true,
+
+                                  "TITLE_SEPARATOR":                " - ",                  // the character(s) used to join the section titles into document.title
+                                  "FAV_ICON_URL":                   "/static/logo.svg",
                                   
                                   "FILESYSTEM_PATHS":               {
                                                                       "BASE":     __dirname,              // the path all these others are relative to

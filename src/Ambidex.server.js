@@ -202,8 +202,8 @@ Ambidex.prototype._verifyPaths = function () {
             self._set("basePath", basePath)
 
             self._set(
-              "scaffoldPath",
-              self._get("scaffoldPath") || __dirname + "/Scaffold.jsx"
+              "Scaffold",
+              require(self._get("scaffoldPath") || __dirname + "/Scaffold.jsx")
             );
 
             self._set(
@@ -337,53 +337,71 @@ Ambidex.prototype._getRequestProcessor = function () {
   var routes    = self._get("routes");
 
   return function (connection) {
-    var styleProp  = {};
-    var scriptProp = {};
-
     var bundlesURL = self._webpackSettings.output.publicPath;
-
 
     ReactRouter.run(
       routes,
-      connection.request.path,
+      connection.location.path,
 
       Handler => {
         self._webpackRan.then(
           webpackStats => {
+            // Running ReactRouter against the <html> element is buggy, so we only
+            // render <body> with ReactRouter and do the rest as static markup with
+            // <Scaffold>
+
+            var scaffoldProps = {
+              "title":      "",
+              "favIconSrc": settings.FAV_ICON_URL,
+              "style":      {},
+              "script":     {},
+              "body":       {},
+            };
+
             if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
-              styleProp.src  = bundlesURL + "styles.js";
-              scriptProp.src = bundlesURL + "jsx.js";
+              scaffoldProps["style"].src  = bundlesURL + "styles.js";
+              scaffoldProps["script"].src = bundlesURL + "jsx.js";
 
             } else {
               // Inline the source if we aren't using Hot Module Replacement to reduce
               // unneccesary requests
-              styleProp.__html  = self._styleHTML;
-              scriptProp.__html = self._scriptHTML;
+              scaffoldProps["style"].__html  = self._styleHTML;
+              scaffoldProps["script"].__html = self._scriptHTML;
             }
+
+            // There's no React lifecycle hook that fires on the server post-render
+            // so we (sadly) have to fake one here to get titles to work properly.
+            var serverDidRenderCallback;
+
+            scaffoldProps["body"].__html = React.renderToString(
+              <HandlerWithAmbidexContext
+                setTitle                  = {
+                                              function (title) {
+                                                scaffoldProps["title"] = title;
+                                              }
+                                            }
+
+                listenForServerDidRender  = {
+                                              function (callback) {
+                                                serverDidRenderCallback = callback;
+                                              }
+                                            }
+
+                { ...{Handler, settings} }
+              />
+            );
+
+            if (serverDidRenderCallback)
+              serverDidRenderCallback();
 
             connection.html(
               [
                 "<!DOCTYPE html>",
 
-                // Running ReactRouter against the <html> element is buggy,
-                // so we only render <Main> (which mounts to the <body>) with
-                // ReactRouter and do the rest as static markup with <Scaffold>
                 React.renderToStaticMarkup(
-                  require(self._get("scaffoldPath"))(
-                    {
-                      "favIconSrc": settings.FAV_ICON_URL,
-                      "style":      styleProp,
-                      "script":     scriptProp,
-                      "body":       {
-                                      "__html":   React.renderToString(
-                                                    <HandlerWithAmbidexContext
-                                                      Handler  = { Handler }
-                                                      settings = { settings }
-                                                    />
-                                                  )
-                                    }
-                    }
-                  )
+                  <self._Scaffold
+                    { ...scaffoldProps }
+                  />
                 )
               ].join("\n")
             );
