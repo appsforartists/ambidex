@@ -1,7 +1,6 @@
 var React = require("react/addons");
 
 var SettingsMixin = {
-  
   "contextTypes":               {
                                   "ambidexSettings":        React.PropTypes.object.isRequired,
                                 },

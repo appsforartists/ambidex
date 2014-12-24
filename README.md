@@ -24,10 +24,12 @@ new Ambidex(
                                   "FAV_ICON_URL":                   "/static/logo.svg",
                                   
                                   "FILESYSTEM_PATHS":               {
-                                                                      "BASE":     __dirname,              // the path all these others are relative to
-                                                                      "ROUTES":           "routeTree.jsx",   
-                                                                      "STYLES":           "styles.scss",
-                                                                      "BUNDLES":          "../bundles/",  // where your concatenated scripts and styles will be stored
+                                                                      "BASE":                    __dirname,                               // the path all these others are relative to
+                                                                      "ROUTES":                           "routeTree.jsx",   
+                                                                      "STYLES":                           "styles.scss",
+                                                                      "REFLUX_DEFINITIONS":               "reflux/definitions.js",
+                                                                      "REFLUX_ACTIONS_FOR_ROUTER_STATE":  "reflux/actionsForRouterState.js",
+                                                                      "BUNDLES":                          "../bundles/",                  // where your concatenated scripts and styles will be stored
                                                                       
 
                                                                       // This is the template that renders the HTML page that contains

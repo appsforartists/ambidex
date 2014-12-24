@@ -1,8 +1,11 @@
 module.exports = {
-  "mixins": {
-              "All":      require("./mixins/All.jsx"),
+  "mixinCreators":  {
+                      "connectStoresToLocalState":   require("./mixinCreators/connectStoresToLocalState.jsx"),
+                    },
 
-              "Settings": require("./mixins/Settings.jsx"),
-              "Title":    require("./mixins/Title.jsx"),
-            },
+  "mixins":         {
+                      "Reflux":   require("./mixins/Reflux.jsx"),
+                      "Settings": require("./mixins/Settings.jsx"),
+                      "Title":    require("./mixins/Title.jsx"),
+                    },
 };

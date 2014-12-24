@@ -29,12 +29,14 @@ var React                   = require("react/addons");
 var ReactRouter             = require("react-router");
 var mach                    = require("mach");
 var Lazy                    = require("lazy.js");
+var Reflux                  = require("isomorphic-reflux");
+var toCamelCase             = require("to-camel-case");
 var Webpack                 = require("webpack");
 var WebpackDevServer        = require("webpack-dev-server");
 
-var HandlerWithAmbidexContext = require("./HandlerWithAmbidexContext.jsx");
-
-var webpackSettingsGetter = require("./webpackSettingsGetter.js");
+var createWebpackSettings           = require("./createWebpackSettings.js");
+var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext.jsx");
+var callActionsForRouterState       = require("./callActionsForRouterState.js");
 
 function Ambidex (argumentDict) {
   var self = this;
@@ -114,7 +116,7 @@ Ambidex.prototype._initFromArgumentDict = function (argumentDict) {
 
   var defaultsForOptionalArguments = {
     "shouldServeImmediately":   true,
-    "middlewareInjector":       undefined
+    "middlewareInjector":       undefined,
   };
 
   var optionalArguments = Object.keys(defaultsForOptionalArguments);
@@ -180,38 +182,55 @@ Ambidex.prototype._verifyPaths = function () {
 
   return Promise.all(
     Lazy(paths).omit("BASE").map(
-      (path, name) =>   {
-                          path = path.startsWith("/")
-                            ? path
-                            : basePath + path;
+      (path, name) => {
+        path = path.startsWith("/")
+          ? path
+          : basePath + path;
 
-                          return fs.exists(path).then(
-                            pathIsValid =>  {
-                                              if (pathIsValid) {
-                                                self._set(name.toLowerCase() + "Path", path);
+        return fs.exists(path).then(
+          pathIsValid =>  {
+            if (pathIsValid) {
+              self._set(toCamelCase(name) + "Path", path);
 
-                                              } else {
-                                                throw new Error("Ambidex could not find `" + path + "`.  Make sure routes.FILESYSTEM_PATHS[\"BASE\"] and [\"" + name + "\"] are set correctly.");
-                                              }
-                                            }
-                          );
-                        }
+            } else {
+              throw new Error("Ambidex could not find `" + path + "`.  Make sure routes.FILESYSTEM_PATHS[\"BASE\"] and [\"" + name + "\"] are set correctly.");
+            }
+          }
+        );
+      }
     ).toArray()
+
   ).then(
     () => {
-            self._set("basePath", basePath)
+      self._set("basePath", basePath)
 
+      self._set(
+        "Scaffold",
+        require(self._get("scaffoldPath") || __dirname + "/Scaffold.jsx")
+      );
+
+      self._set(
+        "routes",
+
+        require(self._get("routesPath"))
+      );
+
+      [
+        "refluxDefinitions",
+        "refluxActionsForRouterState",
+      ].forEach(
+        objectName => {
+          var path = self._get(objectName + "Path");
+
+          if (path) {
             self._set(
-              "Scaffold",
-              require(self._get("scaffoldPath") || __dirname + "/Scaffold.jsx")
-            );
-
-            self._set(
-              "routes",
-
-              require(self._get("routesPath"))
+              objectName,
+              require(path)
             );
           }
+        }
+      );
+    }
   );
 };
 
@@ -238,22 +257,41 @@ Ambidex.prototype._initWebpack = function () {
   if (settings.SERVER_ONLY_MODULE_NAMES)
     webpackSettingsOptions.ignoredModuleNames = settings.SERVER_ONLY_MODULE_NAMES;
 
-  // server settings are passed in when self._routes is defined
+  /*  Webpack constants are effectively string replacements.  Webpack looks for the keys that appear below and
+   *  substitutes them with the values on the right.  Therefore, the values must be stringified.  Otherwise:
+   *
+   *      "__constant":   "my string"     // the quotation marks create a string, but the string itself contains none
+   *      …
+   *      var myVariable = __constant;
+   *
+   *  would result in a syntax error:
+   *
+   *      var myVariable = my string;
+   *
+   *  For the same reason, we must stringify each path individually.  Otherwise, Webpack would be able to replace
+   *  `__ambidexPaths`, but would choke on `__ambidexPaths.routes`, as it wouldn't understand how to parse the
+   *  JSONified structure `__ambidexPaths` contained.
+   *
+   *  See https://github.com/webpack/webpack/issues/634#issuecomment-67832382
+   */
 
-  webpackSettingsOptions.constants = Lazy(
-    {
-      "__ambidexSettings":    settings,
-      "__ambidexRoutesPath":  self._get("routesPath"),
-    }
-  ).map(
-    // Webpack `eval`s its constants, so we have to stringify them first
-    (value, key) => [key, JSON.stringify(value)]
-  ).toObject();
+  webpackSettingsOptions.constants = {
+    "__ambidexSettings":  JSON.stringify(settings),
+    "__ambidexPaths":     Lazy(
+                            [
+                              "routes",
+                              "refluxDefinitions",
+                              "refluxActionsForRouterState",
+                            ]
+                          ).map(
+                            key => [key, JSON.stringify(self._get(key + "Path")) || "null"]
+                          ).toObject()
+  }
 
   // Make sure everything in `settings` is JSON-safe, so we fail consistently if we're passed unJSONifyable data
   settings = self._set("settings", JSON.parse(webpackSettingsOptions.constants.__ambidexSettings));
 
-  self._webpackSettings = webpackSettingsGetter(webpackSettingsOptions);
+  self._webpackSettings = createWebpackSettings(webpackSettingsOptions);
 
   self.webpack      = new Webpack(self._webpackSettings);
   self.webpack.run  = Promise.promisify(self.webpack.run);
@@ -268,6 +306,7 @@ Ambidex.prototype._initWebpack = function () {
                         )
     );
 
+// TODO: resolve this for real in _startServingWebpack
     // put a no-op promise here, so calls to _webpackRan.then don't fail later-on
     self._webpackRan = Promise.resolve(null);
 
@@ -318,6 +357,8 @@ Ambidex.prototype._initStack = function () {
   self.stack.use(mach.gzip);
   self.stack.use(mach.charset, "utf-8");
 
+// TODO: favicon.ico
+
   var middlewareInjector = self._get("middlewareInjector");
   if (middlewareInjector) {
     middlewareInjector(self.stack);
@@ -332,43 +373,97 @@ Ambidex.prototype._initStack = function () {
 // mach will hijack the `this` binding of a request processor
 // so we return a closure to preserve access to `self`
 Ambidex.prototype._getRequestProcessor = function () {
-  var self      = this;
-  var settings  = self._get("settings");
-  var routes    = self._get("routes");
+  var self = this;
+
+  var settings              = self._get("settings");
+  var routes                = self._get("routes");
+  var refluxDefinitions     = self._get("refluxDefinitions");
+  var actionsForRouterState = self._get("refluxActionsForRouterState");
+
+  var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
+    {
+      "reflux":   Boolean(self._get("refluxDefinitionsPath"))
+    }
+  );
 
   return function (connection) {
     var bundlesURL = self._webpackSettings.output.publicPath;
 
-    ReactRouter.run(
-      routes,
-      connection.location.path,
+    // mach won't wait for a result unless we return a promise,
+    // so make sure we have one
+    var routerRan = new Promise(
+      (resolve, reject) => {
+        try {
+          ReactRouter.run(
+            routes,
+            connection.location.path,
+            (Handler, routerState) => resolve([Handler, routerState])
+          );
 
-      Handler => {
-        self._webpackRan.then(
-          webpackStats => {
-            // Running ReactRouter against the <html> element is buggy, so we only
-            // render <body> with ReactRouter and do the rest as static markup with
-            // <Scaffold>
+        } catch (error) {
+          reject(error);
+        }
+      }
+    );
 
-            var scaffoldProps = {
-              "title":      "",
-              "favIconSrc": settings.FAV_ICON_URL,
-              "style":      {},
-              "script":     {},
-              "body":       {},
-            };
+    return Promise.all(
+      [
+        routerRan,
+        self._webpackRan
+      ]
+    ).then(
+      // V8 doesn't seem to like resolving multiple values, so we have to wrap them in an extra array =\
+      ([[Handler, routerState]], webpackStats) => {
+        // Running ReactRouter against the <html> element is buggy, so we only
+        // render <body> with ReactRouter and do the rest as static markup with
+        // <Scaffold>
 
-            if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
-              scaffoldProps["style"].src  = bundlesURL + "styles.js";
-              scaffoldProps["script"].src = bundlesURL + "jsx.js";
+        var scaffoldProps = {
+          "title":      "",
+          "favIconSrc": settings.FAV_ICON_URL,
+          "style":      {},
+          "script":     {},
+          "body":       {},
+        };
 
-            } else {
-              // Inline the source if we aren't using Hot Module Replacement to reduce
-              // unneccesary requests
-              scaffoldProps["style"].__html  = self._styleHTML;
-              scaffoldProps["script"].__html = self._scriptHTML;
-            }
+        if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
+          scaffoldProps["style"].src  = bundlesURL + "styles.js";
+          scaffoldProps["script"].src = bundlesURL + "jsx.js";
 
+        } else {
+          // Inline the source if we aren't using Hot Module Replacement to reduce
+          // unneccesary requests
+          scaffoldProps["style"].__html  = self._styleHTML;
+          scaffoldProps["script"].__html = self._scriptHTML;
+        }
+
+        // Anything that changes here probably needs to change in render.client.js too
+
+        var reflux;
+        var maybeWaitingForReflux = Promise.resolve(null);
+
+        if (refluxDefinitions) {
+          reflux = new Reflux(refluxDefinitions);
+
+          Lazy(reflux.stores).each(
+            store => store.settings = settings
+
+            // could also have stores that opt-in automatically backed by memcached here
+          );
+
+          if (actionsForRouterState) {
+            maybeWaitingForReflux = callActionsForRouterState(
+              {
+                reflux,
+                actionsForRouterState,
+                routerState,
+              }
+            );
+          }
+        }
+
+        return maybeWaitingForReflux.then(
+          () => {
             // There's no React lifecycle hook that fires on the server post-render
             // so we (sadly) have to fake one here to get titles to work properly.
             var serverDidRenderCallback;
@@ -387,14 +482,17 @@ Ambidex.prototype._getRequestProcessor = function () {
                                               }
                                             }
 
-                { ...{Handler, settings} }
+                { ...{Handler, settings, reflux} }
               />
             );
 
             if (serverDidRenderCallback)
               serverDidRenderCallback();
 
-            connection.html(
+            if (reflux)
+              scaffoldProps["storeStateByName"] = reflux.dehydrate();
+
+            return connection.html(
               [
                 "<!DOCTYPE html>",
 
@@ -406,18 +504,18 @@ Ambidex.prototype._getRequestProcessor = function () {
               ].join("\n")
             );
           }
-        ).catch(
-          function (error) {
-            console.error(error.stack);
-
-            return {
-              "status":   error.httpStatus,
-              "content": "ReactRouter errored."
-            };
-          }
         );
       }
-    );
+    ).catch(
+      error => {
+        console.error(error.stack);
+
+        return {
+          "status":   error.httpStatus || 500,
+          "content": "ReactRouter errored."
+        };
+      }
+    )
   }
 };
 

@@ -2,6 +2,16 @@ var React = require("react");
                                                               
 var Scaffold = React.createClass(
   {
+    "propTypes":                  {
+                                    // TODO: add these
+                                  },
+
+    "getDefaultProps":            function () {
+                                    return {
+                                      "storeStateByName":   {},
+                                    }
+                                  },
+
     "render":                     function () {
                                     // use Webpack's bundles for dev, but inline for production
                                     var styleTag = this.props.style.hasOwnProperty("src")
@@ -20,7 +30,7 @@ var Scaffold = React.createClass(
                                       : <script
                                           dangerouslySetInnerHTML = { this.props.script }
                                         />;
-                                                                      
+
                                     return  <html>
                                               <head>
                                                 <title>
@@ -47,13 +57,21 @@ var Scaffold = React.createClass(
                                                 />
                                                                       
                                                 { styleTag }
-                                                                      
-                                                { scriptTag }
                                               </head>
                                                                       
                                               <body
                                                 dangerouslySetInnerHTML = { this.props.body }
                                               />
+                                                
+                                              <script
+                                                dangerouslySetInnerHTML = { 
+                                                                            {
+                                                                              "__html":   `window.__ambidexStoreStateByName = ${ JSON.stringify(this.props.storeStateByName) }` 
+                                                                            }
+                                                                          }
+                                              />
+                                                      
+                                              { scriptTag }
                                             </html>;
                                   }
   }
