@@ -304,8 +304,8 @@ Ambidex.prototype._initWebpack = function () {
                         )
     );
 
-// TODO: resolve this for real in _startServingWebpack
-    // put a no-op promise here, so calls to _webpackRan.then don't fail later-on
+    // There's no need to manually wait for Webpack to be finshed if the dev server
+    // is handling requests, so put a no-op Promise here.
     this._webpackRan = Promise.resolve(null);
 
   } else {
