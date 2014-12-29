@@ -202,34 +202,40 @@ Ambidex.prototype._verifyPaths = function () {
 
   ).then(
     () => {
-      self._set("basePath", basePath)
+      self._set("basePath", basePath);
 
-      self._set(
-        "Scaffold",
-        require(self._get("scaffoldPath") || __dirname + "/Scaffold.jsx")
-      );
+      self._reloadExternalModules();
+    }
+  );
+};
 
-      self._set(
-        "routes",
+Ambidex.prototype._reloadExternalModules = function () {
+  var self = this;
 
-        require(self._get("routesPath"))
-      );
+  self._set(
+    "Scaffold",
+    require(self._get("scaffoldPath") || __dirname + "/Scaffold.jsx")
+  );
 
-      [
-        "refluxDefinitions",
-        "refluxActionsForRouterState",
-      ].forEach(
-        objectName => {
-          var path = self._get(objectName + "Path");
+  self._set(
+    "routes",
 
-          if (path) {
-            self._set(
-              objectName,
-              require(path)
-            );
-          }
-        }
-      );
+    require(self._get("routesPath"))
+  );
+
+  [
+    "refluxDefinitions",
+    "refluxActionsForRouterState",
+  ].forEach(
+    objectName => {
+      var path = self._get(objectName + "Path");
+
+      if (path) {
+        self._set(
+          objectName,
+          require(path)
+        );
+      }
     }
   );
 };
@@ -376,18 +382,19 @@ Ambidex.prototype._getRequestProcessor = function () {
   var self = this;
 
   var settings              = self._get("settings");
-  var routes                = self._get("routes");
-  var refluxDefinitions     = self._get("refluxDefinitions");
-  var actionsForRouterState = self._get("refluxActionsForRouterState");
-
-  var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
-    {
-      "reflux":   Boolean(self._get("refluxDefinitionsPath"))
-    }
-  );
 
   return function (connection) {
     var bundlesURL = self._webpackSettings.output.publicPath;
+
+    var routes                = self._get("routes");
+    var refluxDefinitions     = self._get("refluxDefinitions");
+    var actionsForRouterState = self._get("refluxActionsForRouterState");
+
+    var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
+      {
+        "reflux":   Boolean(self._get("refluxDefinitionsPath"))
+      }
+    );
 
     // mach won't wait for a result unless we return a promise,
     // so make sure we have one
@@ -567,6 +574,51 @@ Ambidex.prototype._startServingWebpack = function () {
         "publicPath": self._webpackSettings.output.publicPath
       }
     );
+
+    /*  The function below reloads the server's copies of user-supplied code
+     *  whenever HMR is triggered.
+     *
+     *  There are many ways we could do this:
+     *
+     *  One approach would be to listen for "done" and purge whatever modules
+     *  were built (or cached) by Webpack, but that leads to instability in
+     *  modules like ReactRouter and Mach that aren't designed to be reloaded
+     *  in the same process.
+     *
+     *  Another approach would be to just erase everything in require.cache.
+     *  Not only is that inefficient, but it also creates a memory leak that
+     *  locks up Node.
+     *
+     *  Therefore, the approach we're using is to erase anything in the
+     *  user-supplied basePath that isn't a node module.  If the user is editing
+     *  code in multiple modules, they'll have to restart the server for the time
+     *  being, but for the general case, this provides HMR for server-rendered
+     *  code (not just the client-rendered HMR we get out-of-the-box with
+     *  Webpack) in a safe and reliable way.
+     */
+
+    self.webpack.plugin(
+      "compile",
+      // should probably be "watch-run", but if we listen for that
+      // watching stops happening after the first pass
+
+      function () {
+        var basePath = self._get("basePath");
+
+        Object.keys(require.cache).forEach(
+          path => {
+            if (path.contains(basePath)) {
+              if (path.replace(basePath, "").indexOf("node_modules") === -1) {
+                delete require.cache[path]
+              }
+            }
+          }
+        );
+
+        self._reloadExternalModules();
+      }
+    );
+
 
     return self.webpackDevServer.listen(
       settings.WEBPACK_PORT,
