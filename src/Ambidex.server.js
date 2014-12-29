@@ -12,9 +12,9 @@ var fs                      = require("fs");
 
 fs = {
   "exists":                 // Can't use Promisify because fs.exists doesn't have an error callback
-                            function (path) {
+                            (path) => {
                               return new Promise(
-                                function (resolve) {
+                                (resolve) => {
                                   return require("fs").exists(path, resolve);
                                 }
                               );
@@ -39,14 +39,12 @@ var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext
 var callActionsForRouterState       = require("./callActionsForRouterState.js");
 
 function Ambidex (argumentDict) {
-  var self = this;
-
   var  rejectInitializationPromise;
   var resolveInitializationPromise;
 
   var initializationPromise = new Promise(
-    function (resolve, reject) {
-      rejectInitializationPromise = function (error) {
+    (resolve, reject) => {
+      rejectInitializationPromise = (error) => {
         console.error(error.stack);
         reject(error);
       };
@@ -56,34 +54,34 @@ function Ambidex (argumentDict) {
   );
 
   try {
-    if (self === global)
+    if (this === global)
       throw new Error("You forgot the `new` in `new Ambidex(…)`!");
 
     if (!argumentDict || !arguments.length === 1)
       throw new Error("Ambidex requires an argument dictionary to be passed in.");
 
-    self._initFromArgumentDict(argumentDict);
+    this._initFromArgumentDict(argumentDict);
 
 
-    var settings  = self._get("settings");
+    var settings  = this._get("settings");
 
-    self._verifyPaths(
+    this._verifyPaths(
 
     ).then(
       () => {
-              self._initStack();
-              self._initWebpack();
+        this._initStack();
+        this._initWebpack();
 
-              if (self._get("shouldServeImmediately")) {
-                process.title = settings.SHORT_NAME;
-                self._startServing().then(
-                  () => resolveInitializationPromise(self)
-                );
+        if (this._get("shouldServeImmediately")) {
+          process.title = settings.SHORT_NAME;
+          this._startServing().then(
+            () => resolveInitializationPromise(this)
+          );
 
-              } else {
-                resolveInitializationPromise(self);
-              }
-            }
+        } else {
+          resolveInitializationPromise(this);
+        }
+      }
     ).catch(
       error =>  rejectInitializationPromise(error)
     );
@@ -108,8 +106,6 @@ Ambidex.prototype._set = function (key, value) {
 }
 
 Ambidex.prototype._initFromArgumentDict = function (argumentDict) {
-  var self = this;
-
   var requiredArguments = [
     "settings"
   ];
@@ -123,12 +119,12 @@ Ambidex.prototype._initFromArgumentDict = function (argumentDict) {
 
 
   Lazy(argumentDict).each(
-    function (value, key) {
+    (value, key) => {
       if (
            Lazy(requiredArguments).contains(key)
         || Lazy(optionalArguments).contains(key)
       ) {
-        self._set(key, value);
+        this._set(key, value);
 
       } else {
         console.warn("Ambidex doesn't know what to do with {\"" + key + "\": " + value + "}");
@@ -137,8 +133,8 @@ Ambidex.prototype._initFromArgumentDict = function (argumentDict) {
   );
 
   requiredArguments.forEach(
-    function (key) {
-      if (!self._has(key)) {
+    (key) => {
+      if (!this._has(key)) {
         throw new Error("Ambidex requires `" + key + "` to be passed into its constructor");
       }
     }
@@ -147,12 +143,12 @@ Ambidex.prototype._initFromArgumentDict = function (argumentDict) {
   // TODO: validate settings
 
   optionalArguments.forEach(
-    function (key) {
+    (key) => {
       if (
-           !self._has(key)
+           !this._has(key)
         && defaultsForOptionalArguments[key] !== undefined
       ) {
-        self._set(key, defaultsForOptionalArguments[key]);
+        this._set(key, defaultsForOptionalArguments[key]);
       }
     }
   );
@@ -161,12 +157,11 @@ Ambidex.prototype._initFromArgumentDict = function (argumentDict) {
 Ambidex.prototype._verifyPaths = function () {
   /*  - Converts all FILESYSTEM_PATHS to absolute,
    *  - Makes sure they all exist,
-   *  - Stores them on self with `self._set("routesPath", FILESYSTEM_PATHS["ROUTES"])`, and
-   *  - `self.set("routes, require(ROUTES_PATH))`
+   *  - Stores them on this with `this._set("routesPath", FILESYSTEM_PATHS["ROUTES"])`, and
+   *  - `this.set("routes, require(ROUTES_PATH))`
    */
 
-  var self      = this;
-  var settings  = self._get("settings");
+  var settings  = this._get("settings");
   var paths     = settings.FILESYSTEM_PATHS;
 
   [
@@ -190,7 +185,7 @@ Ambidex.prototype._verifyPaths = function () {
         return fs.exists(path).then(
           pathIsValid =>  {
             if (pathIsValid) {
-              self._set(toCamelCase(name) + "Path", path);
+              this._set(toCamelCase(name) + "Path", path);
 
             } else {
               throw new Error("Ambidex could not find `" + path + "`.  Make sure routes.FILESYSTEM_PATHS[\"BASE\"] and [\"" + name + "\"] are set correctly.");
@@ -202,25 +197,23 @@ Ambidex.prototype._verifyPaths = function () {
 
   ).then(
     () => {
-      self._set("basePath", basePath);
+      this._set("basePath", basePath);
 
-      self._reloadExternalModules();
+      this._reloadExternalModules();
     }
   );
 };
 
 Ambidex.prototype._reloadExternalModules = function () {
-  var self = this;
-
-  self._set(
+  this._set(
     "Scaffold",
-    require(self._get("scaffoldPath") || __dirname + "/Scaffold.jsx")
+    require(this._get("scaffoldPath") || __dirname + "/Scaffold.jsx")
   );
 
-  self._set(
+  this._set(
     "routes",
 
-    require(self._get("routesPath"))
+    require(this._get("routesPath"))
   );
 
   [
@@ -228,10 +221,10 @@ Ambidex.prototype._reloadExternalModules = function () {
     "refluxActionsForRouterState",
   ].forEach(
     objectName => {
-      var path = self._get(objectName + "Path");
+      var path = this._get(objectName + "Path");
 
       if (path) {
-        self._set(
+        this._set(
           objectName,
           require(path)
         );
@@ -241,16 +234,15 @@ Ambidex.prototype._reloadExternalModules = function () {
 };
 
 Ambidex.prototype._initWebpack = function () {
-  var self      = this;
-  var settings  = self._get("settings");
+  var settings = this._get("settings");
 
   var webpackSettingsOptions  = {
-    "paths":    {
-                  "JSX":      __dirname + "/render.client.js",
-                  "BASE":     self._get("basePath"),
-                  "STYLES":   self._get("stylesPath"),
-                  "BUNDLES":  self._get("bundlesPath"),
-                }
+    "paths":  {
+                "JSX":      __dirname + "/render.client.js",
+                "BASE":     this._get("basePath"),
+                "STYLES":   this._get("stylesPath"),
+                "BUNDLES":  this._get("bundlesPath"),
+              }
   };
 
   if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
@@ -290,22 +282,22 @@ Ambidex.prototype._initWebpack = function () {
                               "refluxActionsForRouterState",
                             ]
                           ).map(
-                            key => [key, JSON.stringify(self._get(key + "Path")) || "null"]
+                            key => [key, JSON.stringify(this._get(key + "Path")) || "null"]
                           ).toObject()
   }
 
   // Make sure everything in `settings` is JSON-safe, so we fail consistently if we're passed unJSONifyable data
-  settings = self._set("settings", JSON.parse(webpackSettingsOptions.constants.__ambidexSettings));
+  settings = this._set("settings", JSON.parse(webpackSettingsOptions.constants.__ambidexSettings));
 
-  self._webpackSettings = createWebpackSettings(webpackSettingsOptions);
+  this._webpackSettings = createWebpackSettings(webpackSettingsOptions);
 
-  self.webpack      = new Webpack(self._webpackSettings);
-  self.webpack.run  = Promise.promisify(self.webpack.run);
+  this.webpack      = new Webpack(this._webpackSettings);
+  this.webpack.run  = Promise.promisify(this.webpack.run);
 
   if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
-    self.stack.use(
+    this.stack.use(
       app => request => request.call(app).then(
-                          function (response) {
+                          (response) => {
                             response.headers["Access-Control-Allow-Origin"] = request.protocol + "//" + settings.HOST + ":" + settings.WEBPACK_PORT;
                             return response;
                           }
@@ -314,14 +306,14 @@ Ambidex.prototype._initWebpack = function () {
 
 // TODO: resolve this for real in _startServingWebpack
     // put a no-op promise here, so calls to _webpackRan.then don't fail later-on
-    self._webpackRan = Promise.resolve(null);
+    this._webpackRan = Promise.resolve(null);
 
   } else {
-    self._webpackRan = self.webpack.run().then(
+    this._webpackRan = this.webpack.run().then(
       (stats) =>  {
                     console.log(stats.toString());
 
-                    var bundlesPath = self._get("bundlesPath");
+                    var bundlesPath = this._get("bundlesPath");
 
                     return [
                       stats,
@@ -340,14 +332,14 @@ Ambidex.prototype._initWebpack = function () {
 
     ).then(
       (resolvedPromises) => {
-                              self._styleHTML  = resolvedPromises[1];
-                              self._scriptHTML = resolvedPromises[2];
+        this._styleHTML  = resolvedPromises[1];
+        this._scriptHTML = resolvedPromises[2];
 
-                              // pass webpackStats through, since our other return values (HTML) are already exposed on self
-                              return resolvedPromises[0];
-                            }
+        // pass webpackStats through, since our other return values (HTML) are already exposed on this
+        return resolvedPromises[0];
+      }
     ).catch(
-      function (error) {
+      (error) => {
         console.error("Error packing bundles with Webpack:");
         console.error(error.stack);
       }
@@ -356,43 +348,40 @@ Ambidex.prototype._initWebpack = function () {
 };
 
 Ambidex.prototype._initStack = function () {
-  var self = this;
-
-  self.stack = new mach.stack();
-  self.stack.use(mach.logger);
-  self.stack.use(mach.gzip);
-  self.stack.use(mach.charset, "utf-8");
+  this.stack = new mach.stack();
+  this.stack.use(mach.logger);
+  this.stack.use(mach.gzip);
+  this.stack.use(mach.charset, "utf-8");
 
 // TODO: favicon.ico
 
-  var middlewareInjector = self._get("middlewareInjector");
+  var middlewareInjector = this._get("middlewareInjector");
   if (middlewareInjector) {
-    middlewareInjector(self.stack);
+    middlewareInjector(this.stack);
   }
 
-  self.stack.route(
+  this.stack.route(
     "*",
-    self._getRequestProcessor()
+    this._getRequestProcessor()
   );
 };
 
 // mach will hijack the `this` binding of a request processor
-// so we return a closure to preserve access to `self`
+// so we return a closure to preserve access to `this`
 Ambidex.prototype._getRequestProcessor = function () {
-  var self = this;
+  var settings = this._get("settings");
+  var Scaffold = this._get("Scaffold");
 
-  var settings              = self._get("settings");
+  return (connection) => {
+    var bundlesURL = this._webpackSettings.output.publicPath;
 
-  return function (connection) {
-    var bundlesURL = self._webpackSettings.output.publicPath;
-
-    var routes                = self._get("routes");
-    var refluxDefinitions     = self._get("refluxDefinitions");
-    var actionsForRouterState = self._get("refluxActionsForRouterState");
+    var routes                = this._get("routes");
+    var refluxDefinitions     = this._get("refluxDefinitions");
+    var actionsForRouterState = this._get("refluxActionsForRouterState");
 
     var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
       {
-        "reflux":   Boolean(self._get("refluxDefinitionsPath"))
+        "reflux":   Boolean(this._get("refluxDefinitionsPath"))
       }
     );
 
@@ -416,7 +405,7 @@ Ambidex.prototype._getRequestProcessor = function () {
     return Promise.all(
       [
         routerRan,
-        self._webpackRan
+        this._webpackRan
       ]
     ).then(
       // V8 doesn't seem to like resolving multiple values, so we have to wrap them in an extra array =\
@@ -440,8 +429,8 @@ Ambidex.prototype._getRequestProcessor = function () {
         } else {
           // Inline the source if we aren't using Hot Module Replacement to reduce
           // unneccesary requests
-          scaffoldProps["style"].__html  = self._styleHTML;
-          scaffoldProps["script"].__html = self._scriptHTML;
+          scaffoldProps["style"].__html  = this._styleHTML;
+          scaffoldProps["script"].__html = this._scriptHTML;
         }
 
         // Anything that changes here probably needs to change in render.client.js too
@@ -478,13 +467,13 @@ Ambidex.prototype._getRequestProcessor = function () {
             scaffoldProps["body"].__html = React.renderToString(
               <HandlerWithAmbidexContext
                 setTitle                  = {
-                                              function (title) {
+                                              title => {
                                                 scaffoldProps["title"] = title;
                                               }
                                             }
 
                 listenForServerDidRender  = {
-                                              function (callback) {
+                                              callback => {
                                                 serverDidRenderCallback = callback;
                                               }
                                             }
@@ -504,7 +493,7 @@ Ambidex.prototype._getRequestProcessor = function () {
                 "<!DOCTYPE html>",
 
                 React.renderToStaticMarkup(
-                  <self._Scaffold
+                  <Scaffold
                     { ...scaffoldProps }
                   />
                 )
@@ -527,27 +516,24 @@ Ambidex.prototype._getRequestProcessor = function () {
 };
 
 Ambidex.prototype._startServing = function () {
-  var self = this;
-
   return Promise.all(
     [
-      self._startServingWebpack(),
-      self._startServingStack(),
+      this._startServingWebpack(),
+      this._startServingStack(),
     ]
   );
 };
 
 Ambidex.prototype._startServingStack = function () {
-  var self      = this;
-  var settings  = self._get("settings");
+  var settings = this._get("settings");
 
   // mach.serve isn't async, but we make a promise anyway because Webpack is, and we want to be consistent.
   return new Promise(
-    function (resolve, reject) {
+    (resolve, reject) => {
 
       try {
         mach.serve(
-          self.stack,
+          this.stack,
           settings.VM_PORT || settings.PORT
         );
 
@@ -561,17 +547,16 @@ Ambidex.prototype._startServingStack = function () {
 };
 
 Ambidex.prototype._startServingWebpack = function () {
-  var self      = this;
-  var settings  = self._get("settings");
+  var settings = this._get("settings");
 
   if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
     WebpackDevServer.prototype.listen = Promise.promisify(WebpackDevServer.prototype.listen);
 
-    self.webpackDevServer = new WebpackDevServer(
-      self.webpack,
+    this.webpackDevServer = new WebpackDevServer(
+      this.webpack,
       {
         "hot":        true,
-        "publicPath": self._webpackSettings.output.publicPath
+        "publicPath": this._webpackSettings.output.publicPath
       }
     );
 
@@ -597,13 +582,13 @@ Ambidex.prototype._startServingWebpack = function () {
      *  Webpack) in a safe and reliable way.
      */
 
-    self.webpack.plugin(
+    this.webpack.plugin(
       "compile",
       // should probably be "watch-run", but if we listen for that
       // watching stops happening after the first pass
 
-      function () {
-        var basePath = self._get("basePath");
+      () => {
+        var basePath = this._get("basePath");
 
         Object.keys(require.cache).forEach(
           path => {
@@ -615,16 +600,16 @@ Ambidex.prototype._startServingWebpack = function () {
           }
         );
 
-        self._reloadExternalModules();
+        this._reloadExternalModules();
       }
     );
 
 
-    return self.webpackDevServer.listen(
+    return this.webpackDevServer.listen(
       settings.WEBPACK_PORT,
       settings.HOST
     ).then(
-      function (result) {
+      (result) => {
         console.info("Started Webpack Dev Server on " + settings.HOST + ":" + settings.WEBPACK_PORT + "…");
       }
     );

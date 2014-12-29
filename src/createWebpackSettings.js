@@ -61,16 +61,16 @@ function getSettings (options) {
 
     Lazy(options.paths).each(
       (value, key) => {
-                        key = key.toLowerCase();
+        key = key.toLowerCase();
 
-                        if (!value.endsWith("/")) {
-                          settings.entry[key] = Array.isArray(settings.entry[key])
-                            ? settings.entry[key]
-                            : [];
+        if (!value.endsWith("/")) {
+          settings.entry[key] = Array.isArray(settings.entry[key])
+            ? settings.entry[key]
+            : [];
 
-                          settings.entry[key].push(value);
-                        }
-                      }
+          settings.entry[key].push(value);
+        }
+      }
     );
   }
 
