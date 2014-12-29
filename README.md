@@ -1,5 +1,7 @@
 ## Introduction ##
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/appsforartists/Ambidex?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 **Ambidex** is a [Mach server](https://github.com/mjackson/mach) that will serve 
 your React-based JavaScript app on both the client and the server.  The initial 
 request is handled by the server, and subsequent requests are rendered by the 
