@@ -348,16 +348,26 @@ Ambidex.prototype._initWebpack = function () {
 };
 
 Ambidex.prototype._initStack = function () {
+  var settings = this._get("settings");
+
   this.stack = new mach.stack();
   this.stack.use(mach.logger);
   this.stack.use(mach.gzip);
   this.stack.use(mach.charset, "utf-8");
 
-// TODO: favicon.ico
-
   var middlewareInjector = this._get("middlewareInjector");
   if (middlewareInjector) {
     middlewareInjector(this.stack);
+  }
+
+  if (settings.FAV_ICON_URL) {
+    this.stack.get(
+      "/favicon.ico",
+      connection => connection.redirect(
+                      301,
+                      settings.FAV_ICON_URL
+                    )
+    );
   }
 
   this.stack.route(
