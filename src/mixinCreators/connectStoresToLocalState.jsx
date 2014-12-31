@@ -54,12 +54,12 @@ var connectStoresToLocalState = function (listenableNames) {
                                           this.listenTo(
                                             this.getRefluxStore(storeName),
 
-                                            (value) =>  this.setState(
-                                                          {
-                                                            componentStateKeyName,
-                                                            value 
-                                                          }
-                                                        )
+                                            (value) =>  {
+                                                          var state = {};
+                                                          state[componentStateKeyName] = value;
+
+                                                          this.setState(state);
+                                                        }
                                           )
                                         }
                                       );
