@@ -592,25 +592,34 @@ Ambidex.prototype._startServingWebpack = function () {
      *  Webpack) in a safe and reliable way.
      */
 
+    var firstCompileCompleted;
+
     this.webpack.plugin(
-      "compile",
-      // should probably be "watch-run", but if we listen for that
-      // watching stops happening after the first pass
+      "after-compile",
 
-      () => {
-        var basePath = this._get("basePath");
+      (compilation, callWhenFinished) => {
+        if (firstCompileCompleted) {
+          // Don't crash the server trying to reload a malformed module
+          if (compilation.errors.length === 0) {
+            var basePath = this._get("basePath");
 
-        Object.keys(require.cache).forEach(
-          path => {
-            if (path.contains(basePath)) {
-              if (path.replace(basePath, "").indexOf("node_modules") === -1) {
-                delete require.cache[path]
+            Object.keys(require.cache).forEach(
+              path => {
+                if (path.contains(basePath)) {
+                  if (path.replace(basePath, "").indexOf("node_modules") === -1) {
+                    delete require.cache[path]
+                  }
+                }
               }
-            }
-          }
-        );
+            );
 
-        this._reloadExternalModules();
+            this._reloadExternalModules();
+          }
+        } else {
+          firstCompileCompleted = true;
+        }
+
+        callWhenFinished();
       }
     );
 
