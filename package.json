@@ -10,7 +10,7 @@
   "browser": "src/init.client.js",
   "main": "src/init.server.js",
   "optionalDependencies": {
-    "react-hot-loader": "0.4.5",
+    "react-hot-loader": "1.0.6",
     "webpack-dev-server": "1.6.5"
   },
   "peerDependencies": {
