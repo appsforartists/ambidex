@@ -38,7 +38,12 @@ var createWebpackSettings           = require("./createWebpackSettings.js");
 var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext.jsx");
 var callActionsForRouterState       = require("./callActionsForRouterState.js");
 
-function Ambidex (argumentDict) {
+function Ambidex (
+  {
+    settings,
+    middlewareInjector
+  }
+) {
   var  rejectInitializationPromise;
   var resolveInitializationPromise;
 
@@ -57,15 +62,15 @@ function Ambidex (argumentDict) {
 
   try {
     if (this === global)
-      throw new Error("You forgot the `new` in `new Ambidex(…)`!");
+      throw new Error("You forgot the `new` in `new Ambidex(…).then(ambidex => …)`");
 
-    if (!argumentDict || !arguments.length === 1)
-      throw new Error("Ambidex requires an argument dictionary to be passed in.");
+    if (!settings)
+      throw new Error("Ambidex requires a settings dictionary to be passed in:\n\t`new Ambidex({\"settings\": {…}}).then(ambidex => …)`");
 
-    this._initFromArgumentDict(argumentDict);
+    this._set("settings",           settings);
+    this._set("middlewareInjector", middlewareInjector);
 
 
-    var settings  = this._get("settings");
     process.title = settings.SHORT_NAME;
 
     this._verifyPaths(
@@ -101,55 +106,6 @@ Ambidex.prototype._get = function (key) {
 Ambidex.prototype._set = function (key, value) {
   return this["_" + key] = value;
 }
-
-Ambidex.prototype._initFromArgumentDict = function (argumentDict) {
-  var requiredArguments = [
-    "settings"
-  ];
-
-  var defaultsForOptionalArguments = {
-    "shouldServeImmediately":   true,
-    "middlewareInjector":       undefined,
-  };
-
-  var optionalArguments = Object.keys(defaultsForOptionalArguments);
-
-
-  Lazy(argumentDict).each(
-    (value, key) => {
-      if (
-           Lazy(requiredArguments).contains(key)
-        || Lazy(optionalArguments).contains(key)
-      ) {
-        this._set(key, value);
-
-      } else {
-        console.warn("Ambidex doesn't know what to do with {\"" + key + "\": " + value + "}");
-      }
-    }
-  );
-
-  requiredArguments.forEach(
-    (key) => {
-      if (!this._has(key)) {
-        throw new Error("Ambidex requires `" + key + "` to be passed into its constructor");
-      }
-    }
-  );
-
-  // TODO: validate settings
-
-  optionalArguments.forEach(
-    (key) => {
-      if (
-           !this._has(key)
-        && defaultsForOptionalArguments[key] !== undefined
-      ) {
-        this._set(key, defaultsForOptionalArguments[key]);
-      }
-    }
-  );
-};
 
 Ambidex.prototype._verifyPaths = function () {
   /*  - Converts all FILESYSTEM_PATHS to absolute,
