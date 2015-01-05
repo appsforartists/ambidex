@@ -80,7 +80,7 @@ function Ambidex (
         this._initStack();
         this._initWebpack();
 
-        this._startServing().then(
+        return this._startServing().then(
           () => resolveInitializationPromise(this)
         );
       }
