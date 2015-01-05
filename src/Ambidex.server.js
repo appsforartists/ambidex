@@ -53,6 +53,8 @@ function Ambidex (argumentDict) {
     }
   );
 
+  initializationPromise.ambidexInProgress = this;
+
   try {
     if (this === global)
       throw new Error("You forgot the `new` in `new Ambidex(…)`!");
@@ -64,6 +66,7 @@ function Ambidex (argumentDict) {
 
 
     var settings  = this._get("settings");
+    process.title = settings.SHORT_NAME;
 
     this._verifyPaths(
 
@@ -72,15 +75,9 @@ function Ambidex (argumentDict) {
         this._initStack();
         this._initWebpack();
 
-        if (this._get("shouldServeImmediately")) {
-          process.title = settings.SHORT_NAME;
-          this._startServing().then(
-            () => resolveInitializationPromise(this)
-          );
-
-        } else {
-          resolveInitializationPromise(this);
-        }
+        this._startServing().then(
+          () => resolveInitializationPromise(this)
+        );
       }
     ).catch(
       error =>  rejectInitializationPromise(error)
@@ -168,9 +165,13 @@ Ambidex.prototype._verifyPaths = function () {
     "BASE",
     "BUNDLES",
   ].forEach(
-    (key) =>  paths[key] = paths[key].endsWith("/")
-                ? settings.FILESYSTEM_PATHS[key]
-                : settings.FILESYSTEM_PATHS[key] + "/"
+    (key) => {
+      if (paths[key]) {
+        paths[key] = paths[key].endsWith("/")
+          ? settings.FILESYSTEM_PATHS[key]
+          : settings.FILESYSTEM_PATHS[key] + "/";
+      }
+    }
   );
 
   var basePath  = paths["BASE"];
@@ -239,7 +240,6 @@ Ambidex.prototype._initWebpack = function () {
   var webpackSettingsOptions  = {
     "paths":  {
                 "JSX":      __dirname + "/render.client.js",
-                "BASE":     this._get("basePath"),
                 "STYLES":   this._get("stylesPath"),
                 "BUNDLES":  this._get("bundlesPath"),
               }
@@ -540,12 +540,22 @@ Ambidex.prototype._startServingStack = function () {
   // mach.serve isn't async, but we make a promise anyway because Webpack is, and we want to be consistent.
   return new Promise(
     (resolve, reject) => {
+      var isAlreadyBeingServed = Boolean(
+            this._isBeingServedExternally
+
+        ||  (
+                 this.stack.nodeServer
+              && this.stack.nodeServer.address()
+            )
+      );
 
       try {
-        mach.serve(
-          this.stack,
-          settings.VM_PORT || settings.PORT
-        );
+        if (!isAlreadyBeingServed) {
+          this.stack.nodeServer = mach.serve(
+            this.stack,
+            settings.VM_PORT || settings.PORT
+          );
+        }
 
         resolve();
 

@@ -10,81 +10,73 @@ Instantiate Ambidex like this:
 ```javascript
 new Ambidex(
   {
-    "settings":                 {
-                                  "NAME":                           "My Awesome App",
-                                  "SHORT_NAME":                     "my_awesome_app",
-                                  
-                                  "HOST":                           "example.appspot.com",
-                                  "PORT":                           "80",                   // the port that goes in your browser's address bar
-                                  "VM_PORT":                        "8080",                 // the port that the LB requests from the VM (optional)
-
-                                  "ENABLE_HOT_MODULE_REPLACEMENT":  true,
-
-                                  "TITLE_SEPARATOR":                " - ",                  // the character(s) used to join the section titles into document.title
-                                  "FAV_ICON_URL":                   "/static/logo.svg",
-                                  
-                                  "FILESYSTEM_PATHS":               {
-                                                                      "BASE":                    __dirname,                               // the path all these others are relative to
-                                                                      "ROUTES":                           "routeTree.jsx",   
-                                                                      "STYLES":                           "styles.scss",
-                                                                      "REFLUX_DEFINITIONS":               "reflux/definitions.js",
-                                                                      "REFLUX_ACTIONS_FOR_ROUTER_STATE":  "reflux/actionsForRouterState.js",
-                                                                      "BUNDLES":                          "../bundles/",                  // where your concatenated scripts and styles will be stored
-                                                                      
-
-                                                                      // This is the template that renders the HTML page that contains
-                                                                      // your app.  If you omit it, Ambidex will use its default.
-                                                                      //
-                                                                      // Custom scaffolds probably won't be much more useful than 
-                                                                      // [the default](./blob/master/src/Scaffold.jsx) until there
-                                                                      // are hooks to customize Webpack Settings
-
-                                                                      "SCAFFOLD":         "Scaffold.jsx"
-                                                                    },
-
-                                  "SERVER_ONLY_MODULE_NAMES":       [
-                                                                      "jsdom"
-                                                                    ],
-
-                                  "CUSTOM_SETTINGS":                {
-                                                                      // Put whatever you like in here.  This is your own namespace to
-                                                                      // pass application-specific data through Ambidex and back to your
-                                                                      // React components.
-                                                                      //
-                                                                      // Remember, because your routes need to compile back to JavaScript
-                                                                      // to be run on the client, anything you include here will need to
-                                                                      // survive JSON serialization.
-                                                                      
-                                                                      "STATIC_URL":       "/static/"
-                                                                    }
-                                },
-
-    "middlewareInjector":       // Use this if you want to inject other middleware onto the stack
-                                // before Ambidex's route handler
-
-                                function (stack) {
-                                  stack.use(
-                                    myCustomMiddleware
-                                  )
-                                },
-
-    "shouldServeImmediately":   // This controls whether Ambidex tries to serve itself or 
-                                // simply returns a reference for you to serve with mach.serve.
-                                // It defaults to true.
-                                false
+    "settings":           {
+                            "NAME":                           "My Awesome App",
+                            "SHORT_NAME":                     "my_awesome_app",
+                            
+                            "HOST":                           "example.appspot.com",
+                            "PORT":                           "80",                   // the port that goes in your browser's address bar
+                            "VM_PORT":                        "8080",                 // the port that the LB requests from the VM (optional)
+                            
+                            "ENABLE_HOT_MODULE_REPLACEMENT":  true,
+                            
+                            "TITLE_SEPARATOR":                " - ",                  // the character(s) used to join the section titles into document.title
+                            "FAV_ICON_URL":                   "/static/logo.svg",
+                                                              
+                            "FILESYSTEM_PATHS":               {
+                                                                "BASE":                    __dirname,                               // the path all these others are relative to
+                                                                "ROUTES":                           "routeTree.jsx",   
+                                                                "STYLES":                           "styles.scss",
+                                                                "REFLUX_DEFINITIONS":               "reflux/definitions.js",
+                                                                "REFLUX_ACTIONS_FOR_ROUTER_STATE":  "reflux/actionsForRouterState.js",
+                                                                "BUNDLES":                          "../bundles/",                  // where your concatenated scripts and styles will be stored
+                                                                
+                                                                
+                                                                // This is the template that renders the HTML page that contains
+                                                                // your app.  If you omit it, Ambidex will use its default.
+                                                                //
+                                                                // Custom scaffolds probably won't be much more useful than 
+                                                                // [the default](./blob/master/src/Scaffold.jsx) until there
+                                                                // are hooks to customize Webpack Settings
+                                                                
+                                                                "SCAFFOLD":         "Scaffold.jsx"
+                                                              },
+                                                              
+                            "SERVER_ONLY_MODULE_NAMES":       [
+                                                                "jsdom"
+                                                              ],
+                                                              
+                            "CUSTOM_SETTINGS":                {
+                                                                // Put whatever you like in here.  This is your own namespace to
+                                                                // pass application-specific data through Ambidex and back to your
+                                                                // React components.
+                                                                //
+                                                                // Remember, because your routes need to compile back to JavaScript
+                                                                // to be run on the client, anything you include here will need to
+                                                                // survive JSON serialization.
+                                                                
+                                                                "STATIC_URL":       "/static/"
+                                                              }
+                          },
+                          
+    "middlewareInjector": // Use this if you want to inject other middleware onto the stack
+                          // before Ambidex's route handler
+                          
+                          function (stack) {
+                            stack.use(
+                              myCustomMiddleware
+                            )
+                          }
   }
 ).then(
   (ambidex) => {
-    // If you disable shouldServeImmediately, you can start the server like this:
-    mach.serve(
-      ambidex.stack,
-      settings.VM_PORT || settings.PORT
-    );
+    // If you want to play with the stack, find it here:
+    ambidex.stack;
 
     // And if you need to access the Webpack instance, find it here:
     ambidex.webpack;
 
-    // Finally, if settings.ENABLE_HOT_MODULE_REPLACEMENT and shouldServeImmediately are true,
+    // Finally, if settings.ENABLE_HOT_MODULE_REPLACEMENT is true,
     // you can programatically access the Webpack Dev Server instance here:
     ambidex.webpackDevServer;
   }

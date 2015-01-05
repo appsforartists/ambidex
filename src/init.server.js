@@ -9,7 +9,18 @@ require("node-jsx").install(
 
 require("./polyfills.js");
 
-var common  = require("./init.common.js");
-var Ambidex = require("./Ambidex.server.js");
+var recursiveCloneWithDefaults = require("./addons/utilities.js").recursiveCloneWithDefaults;
 
-module.exports = Object.assign(Ambidex, common);
+module.exports = Object.assign(
+  require("./Ambidex.server.js"),
+
+  recursiveCloneWithDefaults(
+    {
+      "addons": {
+                  "TardisGallery":  require("./addons/tardis/TardisGallery.server.js"),
+                }
+    },
+
+    require("./init.common.js")
+  )
+);

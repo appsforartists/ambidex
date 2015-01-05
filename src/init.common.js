@@ -1,4 +1,8 @@
 module.exports = {
+  "addons":         {
+                      "utilities":      require("./addons/utilities.js"),
+                    },
+
   "mixinCreators":  {
                       "connectStoresToLocalState":   require("./mixinCreators/connectStoresToLocalState.jsx"),
                     },
