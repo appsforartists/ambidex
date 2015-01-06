@@ -9,14 +9,16 @@ function TardisGallery(
     settings
   }
 ) {
+  var customSettings = settings;
+
   settings = utilities.recursiveCloneWithDefaults(
-    settings,
+    customSettings,
     require("./settings.default.js")
   );
 
   // Introspect URLS from ambidexes, if they aren't already set
   if (settings.URLS) {
-    settings.APPEND_PATH_TO_URLS = false;
+    settings.APPEND_PATH_TO_URLS = customSettings.APPEND_PATH_TO_URLS || false;
 
     if (ambidexPromises) {
       var { HOST, PORT } = ambidexPromises[0].ambidexInProgress._get("settings");
