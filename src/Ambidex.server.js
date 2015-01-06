@@ -34,6 +34,9 @@ var toCamelCase             = require("to-camel-case");
 var Webpack                 = require("webpack");
 var WebpackDevServer        = require("webpack-dev-server");
 
+if (WebpackDevServer)
+  WebpackDevServer.prototype.listen = Promise.promisify(WebpackDevServer.prototype.listen);
+
 var createWebpackSettings           = require("./createWebpackSettings.js");
 var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext.jsx");
 var callActionsForRouterState       = require("./callActionsForRouterState.js");
@@ -493,6 +496,7 @@ Ambidex.prototype._startServing = function () {
 Ambidex.prototype._startServingStack = function () {
   var settings = this._get("settings");
 
+
   // mach.serve isn't async, but we make a promise anyway because Webpack is, and we want to be consistent.
   return new Promise(
     (resolve, reject) => {
@@ -526,7 +530,6 @@ Ambidex.prototype._startServingWebpack = function () {
   var settings = this._get("settings");
 
   if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
-    WebpackDevServer.prototype.listen = Promise.promisify(WebpackDevServer.prototype.listen);
 
     this.webpackDevServer = new WebpackDevServer(
       this.webpack,

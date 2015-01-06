@@ -5,7 +5,7 @@ module.exports = {
   "PORT":                           "8080",
   "WEBPACK_PORT":                   "8078",
 
-  "ENABLE_HOT_MODULE_REPLACEMENT":  false,//NODE_ENV === "local",
+  "ENABLE_HOT_MODULE_REPLACEMENT":  NODE_ENV === "local",
 
   "FILESYSTEM_PATHS":               {
                                       "ROUTES":   `${ __dirname }/routes.jsx`,
