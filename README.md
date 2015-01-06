@@ -17,7 +17,8 @@ new Ambidex(
                             "HOST":                           "example.appspot.com",
                             "PORT":                           "80",                   // the port that goes in your browser's address bar
                             "VM_PORT":                        "8080",                 // the port that the LB requests from the VM (optional)
-                            
+                            "BASE_URL":                       "/b/",                  // mount the route tree at this path when being displayed in a TardisGallery (optional)
+
                             "ENABLE_HOT_MODULE_REPLACEMENT":  true,
                             
                             "TITLE_SEPARATOR":                " - ",                  // the character(s) used to join the section titles into document.title

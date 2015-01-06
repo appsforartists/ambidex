@@ -72,10 +72,21 @@ function TardisGallery(
     ambidexes => {
       ambidexes.forEach(
         ambidex => {
+          var { HOST, BASE_URL } = ambidex._get("settings");
+
+          if (!BASE_URL)
+            BASE_URL = "/"
+
+          if (!BASE_URL.startsWith("/"))
+            BASE_URL = "/" + BASE_URL
+
+          if (!BASE_URL.endsWith("/"))
+            BASE_URL = BASE_URL + "/"
+
           self.mapper.map(
             ambidex === self.ambidexInProgress
               ? "/"
-              : `http://${ ambidex._get("settings").HOST }/`,
+              : `http://${ HOST }${ BASE_URL }`,
             ambidex.stack
           );
         }
