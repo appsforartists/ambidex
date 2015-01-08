@@ -511,6 +511,10 @@ Ambidex.prototype._startServingStack = function () {
 
       try {
         if (!isAlreadyBeingServed) {
+          var port = settings.VM_PORT || settings.PORT;
+
+          console.info(`Starting mach for ${ settings.NAME } on ${ settings.HOST }:${ port }…`);
+
           this.stack.nodeServer = mach.serve(
             this.stack,
             settings.VM_PORT || settings.PORT
@@ -598,7 +602,7 @@ Ambidex.prototype._startServingWebpack = function () {
       settings.HOST
     ).then(
       (result) => {
-        console.info("Started Webpack Dev Server on " + settings.HOST + ":" + settings.WEBPACK_PORT + "…");
+        console.info(`Starting Webpack Dev Server for ${ settings.NAME } on ${ settings.HOST }:${ settings.WEBPACK_PORT }…`);
       }
     );
   } else {
