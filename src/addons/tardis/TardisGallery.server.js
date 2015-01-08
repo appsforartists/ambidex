@@ -98,24 +98,9 @@ function TardisGallery(
     }
   ).then(
     ambidexes => {
-      var ambidexNames = ambidexes.reduce(
-        (result, ambidex, i, list) => {
-          result += ambidex._get("settings").NAME;
-
-          if (i < list.length - 1) {
-            result += ", ";
-
-            if (i === list.length - 2) {
-              result += "and ";
-            }
-          }
-
-          return result
-        },
-        ""
+      ambidexes.forEach(
+        ambidex => console.info(`Starting mach for ${ ambidex._get("settings").NAME } on ${ settings.HOST }:${ settings.PORT }…`)
       );
-
-      console.info(`Starting mach for ${ ambidexNames } on ${ settings.HOST }:${ settings.PORT }…`);
 
       self.mapper.nodeServer = mach.serve(
         self.mapper,
