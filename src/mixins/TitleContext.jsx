@@ -1,5 +1,6 @@
 var React = require("react/addons");
 
+var utilities  = require("../addons/utilities.js");
 var TitleMixin = require("./Title.jsx");
 
 var TitleContextMixin = {
@@ -62,6 +63,9 @@ var TitleContextMixin = {
                                   this.props.setTitle(
                                     this.state.titledComponents.map(
                                       titledComponent => titledComponent.sectionTitle || titledComponent.getSectionTitle()
+
+                                    ).filter(
+                                      potentialSectionTitle => Boolean(potentialSectionTitle) || potentialSectionTitle === 0
 
                                     ).join(
                                       this.props.settings.TITLE_SEPARATOR || " "

@@ -29,6 +29,12 @@ if (__ambidexPaths.refluxDefinitions) {
   );
 
   // not using Lazy to keep the byte-count small for those who aren't using it elsewhere
+  Object.keys(reflux.actions).forEach(
+    actionName => {
+      reflux.actions[actionName].sync = true;
+    }
+  );
+
   Object.keys(reflux.stores).forEach(
     storeName => {
       reflux.stores[storeName].settings = __ambidexSettings;
@@ -53,34 +59,34 @@ var mountReact = function() {
 
       // Anything that changes here needs to change in Ambidex.server.js too
       (Handler, routerState) => {
-        var maybeWaitingForReflux = actionsForRouterState && initialRenderComplete
-          ? callActionsForRouterState(
-              {
-                reflux,
-                actionsForRouterState,
-                routerState,
-              }
-            )
-          : Promise.resolve(null);
-
-        maybeWaitingForReflux.then(
-          () => {
-            React.render(
-              <HandlerWithAmbidexContext
-                settings  = { __ambidexSettings }
-                setTitle  = {
-                              title => {
-                                document.title = title
-                              }
+        var render = function () {
+          React.render(
+            <HandlerWithAmbidexContext
+              settings  = { __ambidexSettings }
+              setTitle  = {
+                            title => {
+                              document.title = title
                             }
+                          }
 
-                { ...{Handler, reflux} }
-              />,
+              { ...{Handler, reflux} }
+            />,
 
-              container
-            )
-          }
-        );
+            container
+          );
+        };
+
+        if (actionsForRouterState && initialRenderComplete) {
+          callActionsForRouterState(
+            {
+              reflux,
+              actionsForRouterState,
+              routerState,
+            }
+          ).then(render);
+        }
+
+        render();
       }
     );
 

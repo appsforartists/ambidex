@@ -5,6 +5,7 @@ var callActionsForRouterState = function (
     actionsForRouterState
   }
 ) {
+  // TODO: add a filter for actionsForRouterState[n].routeName
   return Promise.all(
     actionsForRouterState.map(
       function (
