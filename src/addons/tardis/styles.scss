@@ -1,19 +1,27 @@
-$margin:                      16px;
+$margin:                      8px;
+$border:                      1px;
 
 body {
   background-color:             #313E4B;
   margin:                       $margin;
 }
 
+.TardisGallery {
+  display:                      flex;
+  justify-content:              space-between;
+  flex-wrap:                    wrap;
+}
+
 .Tardis {
   position:                     relative;
   display:                      inline-block;
-  border:                       1px solid hsla(0, 100%, 100%, 0.5);
+  border:                       $border solid hsla(0, 100%, 100%, 0.5);
 
   // iOS will ignore the size of an iframe
   // so wrap it in a size-constrained div
   width:                        320px;
   height:                       568px;
+  margin:                       #{$margin - $border};
 
   -webkit-overflow-scrolling:   touch;
   overflow-y:                   scroll;
@@ -25,9 +33,5 @@ body {
     height:                       100%;
 
     border:                       none;
-  }
-
-  &:not(:first-child) {
-    margin-left:                  $margin;
   }
 }

@@ -37,7 +37,7 @@ var TardisGallery = React.createClass(
                                       }
                                     );
 
-                                    return  <div>
+                                    return  <div className = "TardisGallery">
                                               { tardises } 
                                             </div>
                                   }
