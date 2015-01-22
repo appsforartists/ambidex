@@ -11,7 +11,7 @@
   "main": "src/init.server.js",
   "optionalDependencies": {
     "react-hot-loader": "1.0.6",
-    "webpack-dev-server": "1.6.5"
+    "webpack-dev-server": "1.7.0"
   },
   "peerDependencies": {
     "react": "0.12",
@@ -30,7 +30,7 @@
     "sass-loader": "0.2.0",
     "style-loader": "0.7.0",
     "to-camel-case": "0.2.1",
-    "webpack": "1.4.14"
+    "webpack": "1.5.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
