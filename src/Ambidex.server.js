@@ -596,16 +596,11 @@ Ambidex.prototype._startServingWebpack = function () {
       }
     );
 
-    // This ought to be settings.HOST, but that doesn't seem to be working
-    // when that host is a domain name.
-    var host = require("my-local-ip")();
-
     return this.webpackDevServer.listen(
-      settings.WEBPACK_PORT,
-      host
+      settings.WEBPACK_PORT
     ).then(
       (result) => {
-        console.info(`Starting Webpack Dev Server for ${ settings.NAME } on ${ host }:${ settings.WEBPACK_PORT }…`);
+        console.info(`Starting Webpack Dev Server for ${ settings.NAME } on ${ settings.HOST }:${ settings.WEBPACK_PORT }…`);
       }
     );
   } else {
