@@ -8,6 +8,14 @@
 _Ambidex is being incubated in the [eBay](https://github.com/eBay/) Mobile Innovations lab._
 
 
+## Presentations ##
+
+ -  [**The Ultimate Workflow:** _Tweak your page in real time without leaving the comfort of your editor_](http://goo.gl/ZYoyRZ)  
+    _Presented at [React.js Conf 2015](http://conf.reactjs.com)_
+
+    - [Slides](http://goo.gl/ZYoyRZ)
+
+
 ## Ingredients ##
 
 Ambidex brings together the best of a bunch other fantastic projects, including:
