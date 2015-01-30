@@ -29,6 +29,16 @@ Ambidex brings together the best of a bunch other fantastic projects, including:
  - [**Mach**](https://github.com/mjackson/mach/) _by [Michael Jackson](https://github.com/mjackson/)_
 
 
+## Requirements ##
+
+Ambidex has been tested on 
+
+ - `node v0.11.13`
+ - `npm  v2. 2. 0`
+
+We intend to move to io.js as soon as practicable.  This is currently being blocked by [node-sass](https://github.com/sass/node-sass/issues/627).  We intend to changing the default styling [from SASS to inline styles](http://blog.vjeux.com/2014/javascript/react-css-in-js-nationjs.html) to enable this upgrade.
+
+
 ## Stability ##
 
 Ambidex is a work-in-progress.  It is the foundation of our web-centric work in the eBay Mobile Innovation lab, but it has not yet been deployed in production.
@@ -122,7 +132,11 @@ All the other `FILESYSTEM_PATHS` are relative to this one.  If you set this to `
 The module at this path should export the root `<Route>` of your route tree.
 
 #### `settings.FILESYSTEM_PATHS["STYLES"]` ####
-This module is the entry point to your styles.  It can be either vanilla CSS or [Sass](http://sass-lang.com/).  When [sass-loader#31](https://github.com/jtangelder/sass-loader/issues/31) lands, this may be deprecated (and each JSX component can simply include the styles it needs).
+_**Deprecated!**_
+
+In early versions of Ambidex, this was a hook to circumvent [sass-loader#31](https://github.com/jtangelder/sass-loader/issues/31) and support SASS stylesheets.  The more we work with React (especially in light of React Native), the more appealing purely [inline styles](http://blog.vjeux.com/2014/javascript/react-css-in-js-nationjs.html) have become.
+
+In the coming months, this feature will be dropped to ease the transition from node to io.js.
 
 #### `settings.FILESYSTEM_PATHS["REFLUX_DEFINITIONS"]` ####
 This module should export a dictionary of Reflux definitions, e.g.:
