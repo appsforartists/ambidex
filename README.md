@@ -10,10 +10,11 @@ _Ambidex is being incubated in the [eBay](https://github.com/eBay/) Mobile Innov
 
 ## Presentations ##
 
- -  [**The Ultimate Workflow:** _Tweak your page in real time without leaving the comfort of your editor_](http://goo.gl/ZYoyRZ)  
+ -  [**The Ultimate Workflow:** _Tweak your page in real time without leaving the comfort of your editor_](https://www.youtube.com/watch?v=yaymfLj5tjA)  
     _Presented at [React.js Conf 2015](http://conf.reactjs.com)_
 
     - [Slides](http://goo.gl/ZYoyRZ)
+    - [Video](https://www.youtube.com/watch?v=yaymfLj5tjA)
 
 
 ## Ingredients ##
