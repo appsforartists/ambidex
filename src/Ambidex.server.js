@@ -136,7 +136,7 @@ Ambidex.prototype._verifyPaths = function () {
   var basePath  = paths["BASE"];
 
   return Promise.all(
-    Lazy(paths).omit("BASE").map(
+    Lazy(paths).omit(["BASE"]).map(
       (path, name) => {
         path = path.startsWith("/")
           ? path
