@@ -1,6 +1,6 @@
 var React       = require("react/addons");
 var ReactRouter = require("react-router");
-var Ambidex     = require("Ambidex");
+var Ambidex     = require("ambidex");
 
 var Tardis = require("./Tardis.jsx");
 
