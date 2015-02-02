@@ -51,7 +51,7 @@ function getSettings (options) {
 
   settings.context = __dirname;
   settings.resolveLoader = settings.resolveLoader || {};
-  settings.resolveLoader.root = __dirname.replace("/Ambidex/src", "/Ambidex/node_modules");
+  settings.resolveLoader.root = __dirname.replace("/ambidex/src", "/ambidex/node_modules");
 
   if (options.hasOwnProperty("paths")) {
 
