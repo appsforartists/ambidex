@@ -269,23 +269,23 @@ Ambidex.prototype._initWebpack = function () {
 
   } else {
     this._webpackRan = this.webpack.run().then(
-      (stats) =>  {
-                    console.log(stats.toString());
+      (stats) => {
+        console.log(stats.toString());
 
-                    var bundlesPath = this._get("bundlesPath");
+        var bundlesPath = this._get("bundlesPath");
 
-                    return [
-                      stats,
+        return [
+          stats,
 
-                      fs.readFile(
-                        path.resolve(bundlesPath, "styles.js")
-                      ),
+          fs.readFile(
+            path.resolve(bundlesPath, "styles.js")
+          ),
 
-                      fs.readFile(
-                        path.resolve(bundlesPath, "jsx.js")
-                      )
-                    ];
-                  }
+          fs.readFile(
+            path.resolve(bundlesPath, "jsx.js")
+          )
+        ];
+      }
     ).then(
       promises => Promise.all(promises)
 
