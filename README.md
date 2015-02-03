@@ -68,12 +68,12 @@ Here's how you instantiate Ambidex:
 ```javascript
 new Ambidex(
   {
-    "settings":               require(`./settings.${ process.env["NODE_ENV"] }.js`),
+    "settings":             require(`./settings.${ process.env["NODE_ENV"] }.js`),
 
-    "middlewareInjector":     function (stack) {
-                                // If you want to edit your Mach stack (for instance, to serve static files
-                                // with mach.file, do that here.
-                              }
+    "middlewareInjector":   function (stack) {
+                              // If you want to edit your Mach stack (for instance, to serve static files
+                              // with mach.file, do that here.
+                            }
   }
 ).then(
   (ambidex) => {
@@ -117,7 +117,7 @@ If your app is behind displayed inside a `TardisGallery`, mount its route tree h
 If this is `true`, you'll be able to edit your app live with [**react-hot-loader**](https://github.com/gaearon/react-hot-loader).  This should be `true` for whatever environment(s) you're developing on.
 
 #### `settings["TITLE_SEPARATOR"]` ####
-This string gets put in between [section titles](ambidexmixinstitle), `" - "`.
+This string gets put in between [section titles](#ambidexmixinstitle), `" - "`.
 
 #### `settings["FAV_ICON_URL"]` ####
 For instance, `"/static/logo.svg"`.
@@ -148,10 +148,10 @@ module.exports = {
 }
 ```
 
-For more information, see the [Reflux section](ambidexmixinsreflux).
+For more information, see the [Reflux section](#ambidexmixinsreflux).
 
 #### `settings.FILESYSTEM_PATHS["REFLUX_ACTIONS_FOR_ROUTER_STATE"]` ####
-This module should export your `actionForRouterState`.  For more information, see the [Reflux section](ambidexmixinsreflux).
+This module should export your `actionForRouterState`.  For more information, see the [Reflux section](#ambidexmixinsreflux).
 
 #### `settings.FILESYSTEM_PATHS["BUNDLES"]` ####
 When `"ENABLE_HOT_MODULE_REPLACEMENT"` is `false` (e.g. in production), Ambidex will run Webpack on all your files and serve the results inline in every response.  To do so, it need to be able to cache them on the filesystem.
