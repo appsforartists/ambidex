@@ -72,7 +72,7 @@ new Ambidex(
 
     "middlewareInjector":   function (stack) {
                               // If you want to edit your Mach stack (for instance, 
-                              // to serve static files with mach.file, do that here.
+                              // to serve static files with mach.file) do that here.
                             }
   }
 ).then(
