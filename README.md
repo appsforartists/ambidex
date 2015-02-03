@@ -71,8 +71,8 @@ new Ambidex(
     "settings":             require(`./settings.${ process.env["NODE_ENV"] }.js`),
 
     "middlewareInjector":   function (stack) {
-                              // If you want to edit your Mach stack (for instance, to serve static files
-                              // with mach.file, do that here.
+                              // If you want to edit your Mach stack (for instance, 
+                              // to serve static files with mach.file, do that here.
                             }
   }
 ).then(
