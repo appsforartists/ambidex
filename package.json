@@ -1,12 +1,14 @@
 {
   "name": "ambidex",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Effortlessly host your React app on both the client and the server.  Some call it isomorphic JavaScript - we call it Ambidex.",
   "contributors": [
     "Brenton Simpson <bresimpson@ebay.com> (http://appsforartists.com)"
   ],
   "license": "MIT",
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "browser": "src/init.client.js",
   "main": "src/init.server.js",
   "optionalDependencies": {
