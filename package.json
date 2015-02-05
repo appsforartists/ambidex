@@ -32,15 +32,15 @@
     "to-camel-case": "0.2.1",
     "webpack": "1.5.3"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
-    "url": "git@github.com:appsforartists/Ambidex.git"
+    "url": "git@github.com:appsforartists/ambidex.git"
   },
   "bugs": {
-    "url": "https://github.com/appsforartists/Ambidex/issues"
+    "url": "https://github.com/appsforartists/ambidex/issues"
   },
-  "homepage": "https://github.com/appsforartists/Ambidex"
+  "homepage": "https://github.com/appsforartists/ambidex",
+  "devDependencies": {
+    "rf-release": "^0.4.0"
+  }
 }
