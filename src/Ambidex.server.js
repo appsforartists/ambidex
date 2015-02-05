@@ -578,7 +578,7 @@ Ambidex.prototype._startServingWebpack = function () {
 
             Object.keys(require.cache).forEach(
               path => {
-                if (path.contains(basePath)) {
+                if (path.includes(basePath)) {
                   if (path.replace(basePath, "").indexOf("node_modules") === -1) {
                     delete require.cache[path]
                   }
