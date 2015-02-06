@@ -21,8 +21,8 @@ function getSettings (options) {
                                     "loader": "jsx-loader?harmony"
                                   },
                                   {
-                                    "test":   /\.scss$/,
-                                    "loader": "style-loader!css-loader!autoprefixer-loader!sass-loader"
+                                    "test":   /\.css$/,
+                                    "loader": "style-loader!css-loader!autoprefixer-loader"
                                   }
                                 ]
                   },

@@ -29,7 +29,6 @@
     "mach": "1.2.0",
     "node-jsx": "0.12.4",
     "prfun": "1.0.2",
-    "sass-loader": "0.2.0",
     "style-loader": "0.8.3",
     "to-camel-case": "0.2.1",
     "webpack": "1.5.3"
