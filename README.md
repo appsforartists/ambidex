@@ -136,7 +136,7 @@ By default, Ambidex will set the same [defaults as React Native](https://github.
 
 If you'd like to override those defaults, simply point `FILESYSTEM_PATHS["STYLES"]` your own CSS file.
 
-#### `settings.FILESYSTEM_PATHS["REFLUX_DEFINITIONS"]` ####
+#### `settings.FILESYSTEM_PATHS["REFLUX_DEFINITIONS"]` _(optional)_ ####
 This module should export a dictionary of Reflux definitions, e.g.:
 
 ```javascript
@@ -148,7 +148,7 @@ module.exports = {
 
 For more information, see the [Reflux section](#ambidexmixinsreflux).
 
-#### `settings.FILESYSTEM_PATHS["REFLUX_ACTIONS_FOR_ROUTER_STATE"]` ####
+#### `settings.FILESYSTEM_PATHS["REFLUX_ACTIONS_FOR_ROUTER_STATE"]` _(optional)_ ####
 This module should export your `actionForRouterState`.  For more information, see the [Reflux section](#ambidexmixinsreflux).
 
 #### `settings.FILESYSTEM_PATHS["BUNDLES"]` ####
@@ -157,11 +157,11 @@ When `"ENABLE_HOT_MODULE_REPLACEMENT"` is `false` (e.g. in production), Ambidex 
 `"BUNDLES"` should resolve to a folder where it can store these files.  Each instance of Ambidex needs its own unique bundles folder.
 
                                     
-#### `settings["SERVER_ONLY_MODULE_NAMES"]` ####
+#### `settings["SERVER_ONLY_MODULE_NAMES"]` _(optional)_ ####
 This is an array of module names that should be ignored by Webpack because they are not compatible with the browser (and will only ever run on the server).  For instance, `["jsdom"]`.
 
 
-#### `settings["CUSTOM_SETTINGS"]` ####
+#### `settings["CUSTOM_SETTINGS"]` _(optional)_ ####
 `settings` is just a dictionary - you can put any values inside it that you find useful.  For instance, you might add `"STATIC_URL"` so your components know which CDN hosts your static assets.  
 
 However, as Ambidex evolves, so too will the available settings.  To ensure new features don't collide with your app-specific inclusions, put any settings that Ambidex won't consume in `settings.CUSTOM_SETTINGS`.
