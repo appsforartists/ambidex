@@ -12,7 +12,7 @@
   "browser": "src/init.client.js",
   "main": "src/init.server.js",
   "optionalDependencies": {
-    "react-hot-loader": "1.0.6",
+    "react-hot-loader": "1.1.4",
     "webpack-dev-server": "1.7.0"
   },
   "peerDependencies": {
@@ -23,14 +23,14 @@
   },
   "dependencies": {
     "autoprefixer-loader": "1.0",
-    "css-loader": "0.7.1",
+    "css-loader": "0.9.0",
     "jsx-loader": "0.12.2",
     "lazy.js": "0.4.0",
-    "mach": "1.1.0",
+    "mach": "1.2.0",
     "node-jsx": "0.12.4",
-    "prfun": "1.0.0",
+    "prfun": "1.0.2",
     "sass-loader": "0.2.0",
-    "style-loader": "0.7.0",
+    "style-loader": "0.8.3",
     "to-camel-case": "0.2.1",
     "webpack": "1.5.3"
   },
