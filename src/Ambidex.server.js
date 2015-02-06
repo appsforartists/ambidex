@@ -74,7 +74,8 @@ function Ambidex (
     this._set("middlewareInjector", middlewareInjector);
 
 
-    process.title = settings.SHORT_NAME;
+    if (settings.SHORT_NAME)
+      process.title = settings.SHORT_NAME;
 
     this._verifyPaths(
 
