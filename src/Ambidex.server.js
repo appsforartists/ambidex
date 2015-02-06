@@ -121,6 +121,8 @@ Ambidex.prototype._verifyPaths = function () {
   var settings  = this._get("settings");
   var paths     = settings.FILESYSTEM_PATHS;
 
+  paths["STYLES"] = paths["STYLES"] || __dirname + "/defaults/styles/init.css";
+
   [
     "BASE",
     "BUNDLES",
@@ -168,7 +170,7 @@ Ambidex.prototype._verifyPaths = function () {
 Ambidex.prototype._reloadExternalModules = function () {
   this._set(
     "Scaffold",
-    require(this._get("scaffoldPath") || __dirname + "/Scaffold.jsx")
+    require(this._get("scaffoldPath") || __dirname + "/defaults/Scaffold.jsx")
   );
 
   this._set(

@@ -33,10 +33,10 @@ Ambidex brings together the best of a bunch other fantastic projects, including:
 
 Ambidex has been tested on 
 
- - `node v0.11.13`
- - `npm  v2. 2. 0`
+ - `iojs v1.0.1`
+ - `npm  v2.2.0`
 
-We intend to move to io.js as soon as practicable.  This is currently being blocked by [node-sass](https://github.com/sass/node-sass/issues/627).  We intend to changing the default styling [from SASS to inline styles](http://blog.vjeux.com/2014/javascript/react-css-in-js-nationjs.html) to enable this upgrade.
+It should also work on `node v0.11.13` with the `--harmony` flag, but no promises.
 
 
 ## Stability ##
@@ -97,7 +97,7 @@ Each instance of Ambidex starts with a `settings` dictionary.  Here are the indi
 #### `settings["NAME"]` ####
 The name your app will be referred to in the logs, `"My Awesome App"`.
 
-#### `settings["SHORT_NAME"]` ####
+#### `settings["SHORT_NAME"]` _(optional)_ ####
 A variation of that name without spaces or capital letters - your app will appear in process monitors like `top` under this name, `"my_awesome_app"`
 
 
@@ -107,17 +107,17 @@ The hostname that your app will be made available at, `"example.appspot.com"`.
 #### `settings["PORT"]` ####
 The port that goes in your browser's address bar, `"80"`.
 
-#### `settings["VM_PORT"]` ####
-If your app is behind a load balancer, this is the port that Ambidex should serve your app so the load balancer can find it, `"8080"`. _(optional)_
+#### `settings["VM_PORT"]` _(optional)_ ####
+If your app is behind a load balancer, this is the port that Ambidex should serve your app so the load balancer can find it, `"8080"`.
 
-#### `settings["BASE_URL"]` ####
-If your app is behind displayed inside a `TardisGallery`, mount its route tree here.  This allows you to serve different variations of your app alongside one another; for instance, you might serve version A at `"/A/"` and version B at `/B/`. _(optional)_
+#### `settings["BASE_URL"]` _(optional)_ ####
+If your app is behind displayed inside a `TardisGallery`, mount its route tree here.  This allows you to serve different variations of your app alongside one another; for instance, you might serve version A at `"/A/"` and version B at `/B/`.
 
-#### `settings["ENABLE_HOT_MODULE_REPLACEMENT"]` ####
+#### `settings["ENABLE_HOT_MODULE_REPLACEMENT"]` _(optional)_ ####
 If this is `true`, you'll be able to edit your app live with [**react-hot-loader**](https://github.com/gaearon/react-hot-loader).  This should be `true` for whatever environment(s) you're developing on.
 
-#### `settings["TITLE_SEPARATOR"]` ####
-This string gets put in between [section titles](#ambidexmixinstitle), `" - "`.
+#### `settings["TITLE_SEPARATOR"]` _(optional)_ ####
+This string gets put in between [section titles](#ambidexmixinstitle), such as `" - "`.
 
 #### `settings["FAV_ICON_URL"]` ####
 For instance, `"/static/logo.svg"`.
@@ -131,12 +131,10 @@ All the other `FILESYSTEM_PATHS` are relative to this one.  If you set this to `
 #### `settings.FILESYSTEM_PATHS["ROUTES"]` ####
 The module at this path should export the root `<Route>` of your route tree.
 
-#### `settings.FILESYSTEM_PATHS["STYLES"]` ####
-_**Deprecated!**_
+#### `settings.FILESYSTEM_PATHS["STYLES"]` _(optional)_ ####
+By default, Ambidex will set the same [defaults as React Native](https://github.com/facebook/css-layout/blob/ecc61dae85407148c3fb0077e16bb718592e4e8d/README.md#default-values), such as using [flexbox](http://css-tricks.com/snippets/css/a-guide-to-flexbox/) for [all block-level elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements#Elements).  It also defaults to [Roboto](http://www.google.com/fonts/specimen/Roboto), the [Material Design font used across Android](https://www.google.com/design/spec/style/typography.html#).
 
-In early versions of Ambidex, this was a hook to circumvent [sass-loader#31](https://github.com/jtangelder/sass-loader/issues/31) and support SASS stylesheets.  The more we work with React (especially in light of React Native), the more appealing purely [inline styles](http://blog.vjeux.com/2014/javascript/react-css-in-js-nationjs.html) have become.
-
-In the coming months, this feature will be dropped to ease the transition from node to io.js.
+If you'd like to override those defaults, simply point `FILESYSTEM_PATHS["STYLES"]` your own CSS file.
 
 #### `settings.FILESYSTEM_PATHS["REFLUX_DEFINITIONS"]` ####
 This module should export a dictionary of Reflux definitions, e.g.:
