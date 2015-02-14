@@ -1,0 +1,45 @@
+/*  Sets all block level elements (https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements#Elements)
+ *  to the React Native defaults (https://github.com/facebook/css-layout/blob/ecc61dae85407148c3fb0077e16bb718592e4e8d/README.md#default-values)
+ */
+
+* {
+  position:                     relative;
+  box-sizing:                   border-box;
+  border:                       0 solid black;
+  margin:                       0;
+  padding:                      0;
+}
+
+address,
+article,
+aside,
+blockquote,
+dd,
+div,
+dl,
+fieldset,
+figcaption,
+figure,
+footer,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+header,
+hgroup,
+main,
+nav,
+noscript,
+ol,
+output,
+p,
+section,
+ul {
+  display:                      flex;
+  flex-direction:               column;
+  align-items:                  stretch;
+  flex-shrink:                  0;
+}

@@ -1,0 +1,9 @@
+/*  React Native utilizes inline styles with flexbox for layout.  In the
+ *  spirit of "Learn Once, Write Everywhere", Ambidex sets the same
+ *  defaults as React Native for authors who use inline styles.
+ *
+ *  If you'd like to opt-out, just set settings.FILESYSTEM_PATHS["STYLES"]
+ *  to a file you control.                                                  */
+
+@import url("./fonts.css");
+@import url("./react-native.css");
