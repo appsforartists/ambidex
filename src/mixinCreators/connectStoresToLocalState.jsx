@@ -22,7 +22,7 @@ var connectStoresToLocalState = function (listenableNames) {
      *    )
      */
 
-  console.assert(listenableNames.length, "connectStoresToLocalState needs to know which stores to connect.");
+  console.assert(arguments.length > 0, "connectStoresToLocalState needs to know which stores to connect.");
 
   if (arguments.length == 2) {
     listenableNames = Lazy([arguments]).toObject();

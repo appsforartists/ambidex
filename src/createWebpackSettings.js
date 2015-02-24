@@ -120,7 +120,7 @@ function getSettings (options) {
       new Webpack.optimize.UglifyJsPlugin(
         {
           "output":   {
-                        "inline_scripts":   true
+                        "inline_script":   true
                       }
         }
       )

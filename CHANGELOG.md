@@ -1,3 +1,10 @@
+v0.1.4 - Tue, 24 Feb 2015 01:34:18 GMT
+--------------------------------------
+
+- [653165a](../../commit/653165a) [fixed] connectStoresToLocalState's arguments assertion
+- [150a295](../../commit/150a295) [fixed] `undefined` error in UglifyJS
+
+
 v0.1.3 - Thu, 05 Feb 2015 01:49:27 GMT
 --------------------------------------
 
