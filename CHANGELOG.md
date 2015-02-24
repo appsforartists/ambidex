@@ -1,3 +1,13 @@
+v0.2.0-beta1 - Tue, 24 Feb 2015 01:56:04 GMT
+--------------------------------------------
+
+- [653165a](../../commit/653165a) [fixed] assertion of object argument in connectStoresToLocalState
+- [64be9ea](../../commit/64be9ea) [added] warning if undefined action or store requested
+- [eb4bc82](../../commit/eb4bc82) [added] default stylesheet
+- [5c5bd36](../../commit/5c5bd36) [removed] sass-loader
+- [b82ab33](../../commit/b82ab33) [changed] upgrading dependencies to latest versions
+
+
 v0.1.4 - Tue, 24 Feb 2015 01:34:18 GMT
 --------------------------------------
 
