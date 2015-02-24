@@ -24,28 +24,33 @@ var callActionsForRouterState = function (
         ) {
           return new Promise(
             (resolve, reject) => {
-              var store = reflux.stores[storeName];
+              try {
+                var store = reflux.stores[storeName];
 
-              var finishListening = store.listen(
-                state => {
-                  if (isReady === undefined || isReady(state)) {
-                    resolve([storeName, state]);
-                    finishListening();
+                if (store === undefined)
+                  throw new Error("Could not find store: " + storeName);
+
+                var finishListening = store.listen(
+                  state => {
+                    if (isReady === undefined || isReady(state)) {
+                      resolve([storeName, state]);
+                      finishListening();
+                    }
                   }
+                );
+
+                var action = reflux.actions[actionName];
+
+                if (parameterName) {
+                  action(routerState.params[parameterName]);
+
+                } else {
+                  action();
                 }
-              );
-
-              var action = reflux.actions[actionName];
-
-              if (parameterName) {
-                action(routerState.params[parameterName]);
-
-              } else {
-                action();
+              } catch (error) {
+                reject(error);
               }
             }
-
-            // TODO: catch errors
           );
 
         } else {
