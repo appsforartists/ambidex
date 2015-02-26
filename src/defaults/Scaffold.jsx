@@ -3,7 +3,30 @@ var React = require("react");
 var Scaffold = React.createClass(
   {
     "propTypes":                  {
-                                    // TODO: add these
+                                    "title":                React.PropTypes.string.isRequired,
+
+                                    "style":                React.PropTypes.shape(
+                                                              {
+                                                                "src":      React.PropTypes.string,
+                                                                "__html":   React.PropTypes.string,
+                                                              }
+                                                            ).isRequired,
+
+                                    "script":               React.PropTypes.shape(
+                                                              {
+                                                                "src":      React.PropTypes.string,
+                                                                "__html":   React.PropTypes.string,
+                                                              }
+                                                            ).isRequired,
+
+                                    "body":                 React.PropTypes.shape(
+                                                              {
+                                                                "__html":   React.PropTypes.string.isRequired,
+                                                              }
+                                                            ).isRequired,
+
+                                    "favIconSrc":           React.PropTypes.string,
+                                    "storeStateByName":     React.PropTypes.object,
                                   },
 
     "getDefaultProps":            function () {
