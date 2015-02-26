@@ -1,7 +1,7 @@
 /*  Make Roboto (the font of Material Design and the Android UI) our default
  *  font.                                                                   */
 
-@import url("http://fonts.googleapis.com/css?family=Roboto:500,500italic,400,400italic,300,300italic|Roboto+Condensed:400");
+@import url("https://fonts.googleapis.com/css?family=Roboto:500,500italic,400,400italic,300,300italic|Roboto+Condensed:400");
 
 body {
   font-family:                  "Roboto", sans-serif;
