@@ -1,3 +1,12 @@
+v0.2.0-beta2 - Sun, 01 Mar 2015 17:18:20 GMT
+--------------------------------------------
+
+- [9de0db9](../../commit/9de0db9) [fixed] isomorphic-reflux version
+- [b7063dd](../../commit/b7063dd) [added] Scaffold.propTypes
+- [6ead0f7](../../commit/6ead0f7) [fixed] mixed content warning on HTTPS pages
+- [44103ed](../../commit/44103ed) [added] manual -webkit prefixes to default styles
+
+
 v0.2.0-beta1 - Tue, 24 Feb 2015 01:56:04 GMT
 --------------------------------------------
 
