@@ -214,7 +214,16 @@ _(Note: Our data loading paradigm is currently prototyped with [Reflux](https://
 
 The first challenge to overcome is knowing which data needs to be loaded for a particular page to be rendered.  The server only knows which page to show by inspecting the URL; it can also use the URL determine which data to load.
 
-You can [create named parameters in ReactRouter](https://github.com/rackt/react-router/blob/master/docs/guides/overview.md#dynamic-segments) by placing a colon before the parameter name. For example, this route has a single named parameter, `bikeID`:
+You can use the "name" property of the `<Route />` to invoke the actions and stores needed to render the page. For example, this route is named `myBikes`:
+
+```javascript
+<Route
+  path    = "/my-bikes"
+  name    = "myBikes"
+  handler = { require('./bike-index/components/MyBikes.jsx') }
+/>
+
+also you can [create named parameters in ReactRouter](https://github.com/rackt/react-router/blob/master/docs/guides/overview.md#dynamic-segments) by placing a colon before the parameter name. For example, this route has a single named parameter, `bikeID`:
 
 ```javascript
 <Route
@@ -224,9 +233,10 @@ You can [create named parameters in ReactRouter](https://github.com/rackt/react-
 />
 ```
 
-When Ambidex renders a route, it receives a [`routerState`](https://github.com/rackt/react-router/blob/master/docs/api/run.md#state) object from ReactRouter.  It uses this to filter the entries in [`actionsForRouterState`](#settingsfilesystem_pathsreflux_actions_for_router_state).  Any entry that doesn't have a `parameterName` property will be included on every request.  Additionally, any entry whose `parameterName` matches on in the currently active route will also be included.
+When Ambidex renders a route, it receives a [`routerState`](https://github.com/rackt/react-router/blob/master/docs/api/run.md#state) object from ReactRouter.  It uses this to filter the entries in [`actionsForRouterState`](#settingsfilesystem_pathsreflux_actions_for_router_state). Any entry that doesn't have a `parameterName` or `routeName` property will be included on every request.
+Additionally, any entry whose `parameterName` or `routeName` matches on in the currently active route will also be included.
 
-For instance, this entry would match the `<Route />` example above:
+For instance, this entry would match the `<Route />` examples above:
 
 ```javascript
 {
@@ -235,6 +245,12 @@ For instance, this entry would match the `<Route />` example above:
   "storeName":      "CurrentBike",
   "isReady":        Ambidex.addons.utilities.hasContent,
 },
+{
+  "actionName":     "getMyBikes",
+  "storeName":      "MyBikes",
+  "isReady":        Ambidex.addons.utilities.hasContent,
+},
+
 ```
 
 Ambidex iterates over each matching `actionForRouterState`, passing the value of the named parameter to the action declared in `actionName`.  For instance, a request to `/bikes/1035/edit/` would cause this action to be called:

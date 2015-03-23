@@ -5,6 +5,14 @@ var callActionsForRouterState = function (
     actionsForRouterState
   }
 ) {
+  // Active routes by name for fast matching.
+  var activeRoutesNames = [];
+  routerState.routes.forEach(route => {
+    if (typeof route.name != 'undefined') {
+      activeRoutesNames[route.name] = route.name;
+    }
+  });
+
   // TODO: add a filter for actionsForRouterState[n].routeName
   return Promise.all(
     actionsForRouterState.map(
@@ -13,14 +21,16 @@ var callActionsForRouterState = function (
           storeName,
           actionName,
           parameterName,
-          isReady
+          isReady,
+          routeName
         }
       ) {
         console.assert(storeName && actionName, `Each actionForRouterState requires both a storeName and an actionName, but they weren't found in ${ JSON.stringify(arguments[0]) }`);
 
         if (
-             !parameterName
+          (!parameterName && !routeName)
           || routerState.params[parameterName]
+          || (routeName in activeRoutesNames)
         ) {
           return new Promise(
             (resolve, reject) => {
