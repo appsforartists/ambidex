@@ -214,7 +214,7 @@ _(Note: Our data loading paradigm is currently prototyped with [Reflux](https://
 
 The first challenge to overcome is knowing which data needs to be loaded for a particular page to be rendered.  The server only knows which page to show by inspecting the URL; it can also use the URL determine which data to load.
 
-You can use the "name" property of the `<Route />` to invoke the actions and stores needed to render the page. For example, this route is named `myBikes`:
+You can use the `name` property of the `<Route />` to invoke the actions and stores needed to render the page. For example, this route is named `myBikes`:
 
 ```javascript
 <Route
@@ -247,6 +247,7 @@ For instance, this entry would match the `<Route />` examples above:
   "isReady":        Ambidex.addons.utilities.hasContent,
 },
 {
+  "routeName":      "myBikes",
   "actionName":     "getMyBikes",
   "storeName":      "MyBikes",
   "isReady":        Ambidex.addons.utilities.hasContent,
