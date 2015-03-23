@@ -222,6 +222,7 @@ You can use the "name" property of the `<Route />` to invoke the actions and sto
   name    = "myBikes"
   handler = { require('./bike-index/components/MyBikes.jsx') }
 />
+```
 
 also you can [create named parameters in ReactRouter](https://github.com/rackt/react-router/blob/master/docs/guides/overview.md#dynamic-segments) by placing a colon before the parameter name. For example, this route has a single named parameter, `bikeID`:
 
