@@ -9,7 +9,7 @@ module.exports = {
 
   "FILESYSTEM_PATHS":               {
                                       "ROUTES":   `${ __dirname }/routes.jsx`,
-                                      "STYLES":   `${ __dirname }/styles.scss`,
+                                      "STYLES":   `${ __dirname }/styles.css`,
                                       "BUNDLES":  `${ __dirname }/bundles/`,
                                     },
 
