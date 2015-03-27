@@ -1,75 +1,40 @@
-var Lazy   = require("lazy.js");
-var Reflux = require("reflux");
+var FunxMixin = require("../mixins/Funx.jsx");
 
-var toCamelCase = require("to-camel-case");
+var connectStoresToLocalState = function (storeNames) {
+  console.assert(Array.isArray(storeNames), "connectStoresToLocalState expects an Array of store names.");
+  console.assert(storeNames.length, "connectStoresToLocalState needs to know which stores to connect.");
+  console.assert(storeNames.every(storeName => storeName[0] === storeName[0].toLowerCase()), "The store names passed to connectStoresToLocalState should be in lower-camel-case.");
 
-var RefluxMixin = require("../mixins/Reflux.jsx");
-
-var connectStoresToLocalState = function (listenableNames) {
-    /*  connectStoresToLocalState can be called in three ways:
-     *
-     *  - connectStoresToLocalState(StoreName, componentStateKeyName),
-     *
-     *  - connectStoresToLocalState([StoreName1, StoreName2]): componentStateKeyName will 
-     *    be the lower-camel-case version of StoreName.  If you pass in a single string,
-     *    it will be treated as an Array of one item (the string).
-     *
-     *  - connectStoresToLocalState(
-     *      {
-     *        "StoreName1":   "componentStateKeyName1",
-     *        "StoreName2":   "componentStateKeyName2",
-     *      }
-     *    )
-     */
-
-  console.assert(arguments.length > 0, "connectStoresToLocalState needs to know which stores to connect.");
-
-  if (arguments.length == 2) {
-    listenableNames = Lazy([arguments]).toObject();
-
-  } else if (listenableNames.constructor === String) {
-    listenableNames = [listenableNames];
-  }
-
-  if (Array.isArray(listenableNames)) {
-    listenableNames = Lazy(listenableNames).map(
-      storeName => [storeName, toCamelCase(storeName)]
-    ).toObject();
-  }
-
-  // Heavily inspired by Reflux.connect: https://github.com/spoike/refluxjs/blob/master/src/connect.js
   return Object.assign(
     {
-      "getInitialState":            function () {
-                                      return Lazy(listenableNames).map(
-                                        (componentStateKeyName, storeName) => {
-                                          return [componentStateKeyName, this.getRefluxStore(storeName).state]
-                                        }
-                                      ).toObject();
-                                    },
-
-      "componentDidMount":          function () {
-                                      Lazy(listenableNames).each(
-                                        (componentStateKeyName, storeName) => {
-                                          this.listenTo(
-                                            this.getRefluxStore(storeName),
-
-                                            (value) =>  {
-                                                          var state = {};
-                                                          state[componentStateKeyName] = value;
-
-                                                          this.setState(state);
+      "componentWillMount":         function () {
+                                      this._funxConnections = storeNames.map(
+                                        storeName =>  (
+                                                        {
+                                                          "store":    this.getFunxStore(storeName),
+                                                          "listener": value => {
+                                                                        // Workaround for https://github.com/facebook/jstransform/issues/35
+                                                                        var changedState = {};
+                                                                        changedState[storeName] = value;
+                                                                        this.setState(changedState);
+                                                                      }
                                                         }
-                                          )
-                                        }
+                                                      )
+                                      );
+
+                                      this._funxConnections.forEach(
+                                        connection => connection.store.onValue(connection.listener)
                                       );
                                     },
 
-      "componentWillUnmount":       Reflux.ListenerMixin.componentWillUnmount
+      "componentWillUnmount":       function () {
+                                      this._funxConnections.forEach(
+                                        connection => connection.store.offValue(connection.listener)
+                                      );
+                                    },
     },
 
-    RefluxMixin,
-    Reflux.ListenerMethods
+    FunxMixin
   );
 };
 

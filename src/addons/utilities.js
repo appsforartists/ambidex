@@ -22,6 +22,28 @@ var utilities = {
                                                         ? [key, utilities.recursiveCloneWithDefaults(instance[key] || {}, defaults[key] || {})]
                                                         : [key, value]
                                     ).toObject();
+                                  },
+
+  "promiseFromTruthyObservable":  function (stream) {
+                                    return new Promise(
+                                      (resolve, reject) => {
+                                        var streamListener = (value) => {
+                                          if (value) {
+                                            resolve(
+                                              value
+                                            );
+
+                                            stream.offValue(
+                                              streamListener
+                                            );
+                                          }
+                                        };
+
+                                        stream.onValue(
+                                          streamListener
+                                        );
+                                      }
+                                    );
                                   }
 };
 

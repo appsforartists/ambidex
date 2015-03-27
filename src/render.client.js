@@ -2,19 +2,16 @@ require("./polyfills.js");
 
 var React                = require("react/addons");
 var ReactRouter          = require("react-router");
-var Reflux               = require("isomorphic-reflux");
+var Funx                 = require("funx");
+var Immutable            = require("immutable");
 var injectTapEventPlugin = require("react-tap-event-plugin");
 
-var callActionsForRouterState       = require("./callActionsForRouterState.js");
 var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext.jsx");
-
-if (__ambidexPaths.refluxActionsForRouterState)
-  var actionsForRouterState = require(__ambidexPaths.refluxActionsForRouterState);
 
 var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
   // enable/disable features based on what settings the developer has passed in
   {
-    "reflux":   Boolean(__ambidexPaths.refluxDefinitions)
+    "funx":   Boolean(__ambidexPaths.funxDefinitions)
   }
 );
 
@@ -23,25 +20,22 @@ var containerSelector = "body";
 
 injectTapEventPlugin();
 
-if (__ambidexPaths.refluxDefinitions) {
-  var reflux = new Reflux(
-    require(__ambidexPaths.refluxDefinitions)
+if (__ambidexPaths.funxDefinitions) {
+  var funxDefinitions = Funx.addons.addRouterStateStoreToFunxDefinitions(
+    require(__ambidexPaths.funxDefinitions)
   );
 
-  // not using Lazy to keep the byte-count small for those who aren't using it elsewhere
-  Object.keys(reflux.actions).forEach(
-    actionName => {
-      reflux.actions[actionName].sync = true;
-    }
+  funxDefinitions.mixin = Object.assign(
+    {
+      "settings": __ambidexSettings
+    },
+
+    funxDefinitions.mixin
   );
 
-  Object.keys(reflux.stores).forEach(
-    storeName => {
-      reflux.stores[storeName].settings = __ambidexSettings;
-    }
-  );
+  funxDefinitions.serializedStoreState = __ambidexStoreStateByName;
 
-  reflux.hydrate(__ambidexStoreStateByName);
+  var funx = new Funx(funxDefinitions);
 }
 
 var initialRenderComplete;
@@ -59,34 +53,28 @@ var mountReact = function() {
 
       // Anything that changes here needs to change in Ambidex.server.js too
       (Handler, routerState) => {
-        var render = function () {
-          React.render(
-            <HandlerWithAmbidexContext
-              settings  = { __ambidexSettings }
-              setTitle  = {
-                            title => {
-                              document.title = title
-                            }
+        React.render(
+          <HandlerWithAmbidexContext
+            settings  = { __ambidexSettings }
+            setTitle  = {
+                          title => {
+                            document.title = title
                           }
+                        }
 
-              { ...{Handler, reflux} }
-            />,
+            { ...{Handler, funx} }
+          />,
 
-            container
-          );
-        };
+          container
+        );
 
-        if (actionsForRouterState && initialRenderComplete) {
-          callActionsForRouterState(
+        if (initialRenderComplete) {
+          funx.actions.routerStateChanged(
             {
-              reflux,
-              actionsForRouterState,
-              routerState,
+              "routerState":  Immutable.fromJS(routerState.params)
             }
-          ).then(render);
+          );
         }
-
-        render();
       }
     );
 

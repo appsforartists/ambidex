@@ -25,7 +25,6 @@ Ambidex brings together the best of a bunch other fantastic projects, including:
  - [**React Router**](https://github.com/rackt/react-router/) _by [Ryan Florence](https://github.com/rpflorence/) and [Michael Jackson](https://github.com/mjackson/)_
  - [**React Hot Loader**](https://github.com/gaearon/react-hot-loader/) _by [Dan Abramov](https://github.com/gaearon/)_
  - [**Webpack**](https://github.com/webpack/webpack/) _by [Tobias Koppers](https://github.com/sokra)_
- - [**Reflux**](https://github.com/spoike/refluxjs/) _by [Mikael Brassman](https://github.com/spoike/)_
  - [**Mach**](https://github.com/mjackson/mach/) _by [Michael Jackson](https://github.com/mjackson/)_
 
 
@@ -136,20 +135,43 @@ By default, Ambidex will set the same [defaults as React Native](https://github.
 
 If you'd like to override those defaults, simply point `FILESYSTEM_PATHS["STYLES"]` your own CSS file.
 
-#### `settings.FILESYSTEM_PATHS["REFLUX_DEFINITIONS"]` _(optional)_ ####
-This module should export a dictionary of Reflux definitions, e.g.:
+#### `settings.FILESYSTEM_PATHS["FUNX_DEFINITIONS"]` _(optional)_ ####
+This module should export a dictionary of Funx definitions, e.g.:
 
 ```javascript
 module.exports = {
-  "CurrentBike":  require("./CurrentBike.js"),
-  "Bikes":        require("./Bikes.js"),
+  "apiDefinitions":     {
+                          "Bikes":        require("./apis/Bikes.js"),
+                        },
+
+  "storeDefinitions":   {
+                          "stateful":   {
+                                          "Bikes":        require("./stores/Bikes.js"),
+                                        },
+                                        
+                          "ephemeral":  {
+                                          "currentBike":    function (Bikes, routerState) {
+                                                              return routerState.has("bikeID")
+                                                                ? Bikes.getOrFetch(
+                                                                    {
+                                                                      "bikeID":  routerState.get("bikeID")
+                                                                    }
+                                                                  )
+                                                                : null
+                                                            },
+
+                                          "readyToRender":  function (routerState, currentBike) {
+                                                              if (routerState.has("bikeID") && !currentBike)
+                                                                return false;
+
+                                                              return true;
+                                                            },
+                                        },
+                        }
 }
 ```
 
-For more information, see the [Reflux section](#ambidexmixinsreflux).
-
-#### `settings.FILESYSTEM_PATHS["REFLUX_ACTIONS_FOR_ROUTER_STATE"]` _(optional)_ ####
-This module should export your `actionForRouterState`.  For more information, see the [Reflux section](#ambidexmixinsreflux).
+Until I have time to document this better, see [Gravel's `funxDefinitions`](https://github.com/appsforartists/gravel/blob/master/src/funxDefinitions.js) for a very simple example.
 
 #### `settings.FILESYSTEM_PATHS["BUNDLES"]` ####
 When `"ENABLE_HOT_MODULE_REPLACEMENT"` is `false` (e.g. in production), Ambidex will run Webpack on all your files and serve the results inline in every response.  To do so, it need to be able to cache them on the filesystem.
@@ -200,15 +222,13 @@ When your route tree renders, Ambidex will check each handler for a section titl
 [`settings["TITLE_SEPARATOR"]`](#settingstitle_separator) will be interspersed between each section title.  The result will be returned in the `<title>` tag when rendered on the server, or set on the client with `document.title`.
 
 
-#### `Ambidex.mixins.Reflux` ####
+#### `Ambidex.mixins.Funx` ####
 
 The biggest difference between running your app on the server and running it on the client is how you load data when someone clicks a link:
 
  - The server only gets to respond once, so it must wait until every piece of data has loaded before responding.
 
  - The client doesn't have this limitation, and users expect it to respond immediately.  The best strategy here is to change pages immediately (even though your stores are probably empty) and to fill the component with new data as it arrives.
-
-_(Note: Our data loading paradigm is currently prototyped with [Reflux](https://github.com/spoike/refluxjs/).  This could change to a more functionally reactive library like [RxJS](https://github.com/Reactive-Extensions/RxJS) or [Bacon](https://baconjs.github.io/) as we progress, but the architecture should remain the same.)_
 
 The first challenge to overcome is knowing which data needs to be loaded for a particular page to be rendered.  The server only knows which page to show by inspecting the URL; it can also use the URL determine which data to load.
 
@@ -222,52 +242,19 @@ You can [create named parameters in ReactRouter](https://github.com/rackt/react-
 />
 ```
 
-When Ambidex renders a route, it receives a [`routerState`](https://github.com/rackt/react-router/blob/master/docs/api/run.md#state) object from ReactRouter.  It uses this to filter the entries in [`actionsForRouterState`](#settingsfilesystem_pathsreflux_actions_for_router_state).  Any entry that doesn't have a `parameterName` property will be included on every request.  Additionally, any entry whose `parameterName` matches on in the currently active route will also be included.
+When Ambidex renders a route, it receives a [state object from ReactRouter](https://github.com/rackt/react-router/blob/master/docs/api/run.md#state).  It puts all of state's parameters into an [Immutable Map](http://facebook.github.io/immutable-js/docs/#/Map) and wraps it in a [Funx](https://github.com/appsforartists/funx) store called `routerState`.  Listen for `routerState` from your ephemeral stores to expose particular subsets your stateful stores.
 
-For instance, this entry would match the `<Route />` example above:
+You must provide an ephemeral store called `readyToRender` that listens returns `true` when all your data dependencies are loaded and ready to be handed to the client.
 
-```javascript
-{
-  "parameterName":  "bikeID",
-  "actionName":     "viewBike",
-  "storeName":      "CurrentBike",
-  "isReady":        Ambidex.addons.utilities.hasContent,
-},
-```
-
-Ambidex iterates over each matching `actionForRouterState`, passing the value of the named parameter to the action declared in `actionName`.  For instance, a request to `/bikes/1035/edit/` would cause this action to be called:
-
-```javascript
-viewBike(1035);
-```
-
-Ambidex listens for the store specified by `storeName` (`CurrentBike`) to `trigger`.  If `actionForRouterState` does not have an `isReady` callback, Ambidex will presume the store is ready the first time it `trigger`s.
-
-You'll usually want to check the store's value before presuming it's ready to be rendered; this is what `isReady` is for.  When the store `trigger`s, Ambidex will pass the store's `state` to `isReady`.  If `isReady` returns `true`, Ambidex knows the store is ready to be rendered.
-
-Ambidex provides two helpers that can be used for `isReady`:
- 
- - **`Ambidex.addons.utilities.hasValue`**: tests that the value is neither `null` nor `undefined`.
- - **`Ambidex.addons.utilities.hasContent`**: If the value is an Array or a dictionary, test that it contains values.  Otherwise, fall back to `hasValue`.
-
-Following up on the example, as soon as `CurrentBike` `trigger`s with a bike model in its `state`, Ambidex will consider it ready.  When all the filtered `actionsForRouterState` are ready, Ambidex will render the route and serve the results.
-
-You may be wondering "OK, how do I define an action or a store?"  For now, the best answer is to [read this comment](https://github.com/spoike/refluxjs/issues/144#issuecomment-68023326) and [explore the example](https://github.com/appsforartists/ambidex-example--bike-index/tree/master/application/bike-index/reflux).
+See an example of using `routerState` and creating a `readyToRender` store in the [`funxDefinitions`](#settingsfilesystem_pathsreflux_actions_for_router_state) section.
 
 -----
 
 Now that you've sorted out what data needs to be loaded, you need to pass it to your React components.  
 
-The best way is with `Ambidex.mixinCreators.connectStoresToLocalState`.  It will take the value of your store's `state` and mirror it on your component's `state`.  For instance, [this call](https://github.com/appsforartists/ambidex-example--bike-index/blob/6548ca987e7549c33c1ce6251a8b888a3fb87b52/application/bike-index/components/BikeDetails.jsx#L8-L10) tells Ambidex to take the value of `CurrentBike.state` and put it in `<BikeDetails />.state.currentBike`.  Whenever the store updates, your component will too.
+The best way is with `Ambidex.mixinCreators.connectStoresToLocalState(storeNames)`.  It will listen to the specified stores and persist their most recent values on your component's state.  Whenever a store updates, your component will too.
 
-`connectStoresToLocalState` accepts its arguments in many formats:
-
- - `("CurrentBike")` - connect the `CurrentBike` store to `currentBike` on the component state.
- - `("CurrentBike", "current")` - connect the `CurrentBike` store to `current` on the component state.
- - `(["CurrentBike", "Bikes"])` - connect the `CurrentBike` and `Bikes` stores to `currentBike` and `bikes` on the component state.
- - `({"CurrentBike": "current", "Bikes": "all"})` - connect the `CurrentBike` and `Bikes` stores to `current` and `all` on the component state.
-
-If you'd rather do it manually, you can instead use `Ambidex.mixins.Reflux`, which adds `getRefluxAction` and `getRefluxStore` methods to your components.
+If you'd rather do it manually, you can instead use `Ambidex.mixins.Funx`, which adds `getFunxAction` and `getFunxStore` methods to your components.
 
 #### `Ambidex.mixins.Settings` ####
 

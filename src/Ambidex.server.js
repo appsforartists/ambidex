@@ -174,9 +174,9 @@ Ambidex.prototype._reloadExternalModules = function () {
     require(this._get("routesPath"))
   );
 
+  // optional paths go here:
   [
-    "refluxDefinitions",
-    "refluxActionsForRouterState",
+    "funxDefinitions",
   ].forEach(
     objectName => {
       var path = this._get(objectName + "Path");
@@ -235,8 +235,7 @@ Ambidex.prototype._initWebpack = function () {
     "__ambidexPaths":     Lazy(
                             [
                               "routes",
-                              "refluxDefinitions",
-                              "refluxActionsForRouterState",
+                              "funxDefinitions",
                             ]
                           ).map(
                             key => [key, JSON.stringify(this._get(key + "Path")) || "null"]
@@ -336,21 +335,31 @@ Ambidex.prototype._initStack = function () {
 // mach will hijack the `this` binding of a request processor
 // so we return a closure to preserve access to `this`
 Ambidex.prototype._getRequestProcessor = function () {
-  var settings = this._get("settings");
-  var Scaffold = this._get("Scaffold");
+  var settings            = this._get("settings");
+  var Scaffold            = this._get("Scaffold");
+  var funxDefinitionsPath = this._get("funxDefinitionsPath");
+
+  if (funxDefinitionsPath) {
+    var funxDefinitions = Funx.addons.addRouterStateStoreToFunxDefinitions(
+      require(funxDefinitionsPath)
+    );
+
+    funxDefinitions.mixin = Object.assign(
+      {
+        settings
+      },
+
+      funxDefinitions.mixin
+    );
+
+    console.assert(
+      funxDefinitions.storeDefinitions.ephemeral.readyToRender,
+      "You must define a 'readyToRender' Funx store so Ambidex knows when your data has loaded."
+    );
+  }
 
   return (connection) => {
     var bundlesURL = this._webpackSettings.output.publicPath;
-
-    var routes                = this._get("routes");
-    var refluxDefinitions     = this._get("refluxDefinitions");
-    var actionsForRouterState = this._get("refluxActionsForRouterState");
-
-    var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
-      {
-        "reflux":   Boolean(this._get("refluxDefinitionsPath"))
-      }
-    );
 
     // mach won't wait for a result unless we return a promise,
     // so make sure we have one
@@ -358,7 +367,7 @@ Ambidex.prototype._getRequestProcessor = function () {
       (resolve, reject) => {
         try {
           ReactRouter.run(
-            routes,
+            this._get("routes"),
             connection.location.path,
             (Handler, routerState) => resolve([Handler, routerState])
           );
@@ -402,30 +411,27 @@ Ambidex.prototype._getRequestProcessor = function () {
 
         // Anything that changes here probably needs to change in render.client.js too
 
-        var reflux;
-        var maybeWaitingForReflux = Promise.resolve(null);
+        var maybeWaitingForReadyToRender = Promise.resolve(null);
 
-        if (refluxDefinitions) {
-          reflux = new Reflux(refluxDefinitions);
+        var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
+          {
+            "funx":   Boolean(funxDefinitionsPath)
+          }
+        );
 
-          Lazy(reflux.stores).each(
-            store => store.settings = settings
+        if (funxDefinitions) {
+          var funx = new Funx(funxDefinitions);
 
-            // could also have stores that opt-in automatically backed by memcached here
+          funx.actions.routerStateChanged(
+            {
+              "routerState":  Immutable.fromJS(routerState.params)
+            }
           );
 
-          if (actionsForRouterState) {
-            maybeWaitingForReflux = callActionsForRouterState(
-              {
-                reflux,
-                actionsForRouterState,
-                routerState,
-              }
-            );
-          }
+          maybeWaitingForReadyToRender = utilities.promiseFromTruthyObservable(funx.stores.readyToRender);
         }
 
-        return maybeWaitingForReflux.then(
+        return maybeWaitingForReadyToRender.then(
           () => {
             // There's no React lifecycle hook that fires on the server post-render
             // so we (sadly) have to fake one here to get titles to work properly.
@@ -445,15 +451,15 @@ Ambidex.prototype._getRequestProcessor = function () {
                                               }
                                             }
 
-                { ...{Handler, settings, reflux} }
+                { ...{Handler, settings, funx} }
               />
             );
 
             if (serverDidRenderCallback)
               serverDidRenderCallback();
 
-            if (reflux)
-              scaffoldProps["storeStateByName"] = reflux.dehydrate();
+            if (funx)
+              scaffoldProps["storeStateByName"] = funx.getSerializedStoreState();
 
             return connection.html(
               [
@@ -475,7 +481,7 @@ Ambidex.prototype._getRequestProcessor = function () {
 
         return {
           "status":   error.httpStatus || 500,
-          "content": "ReactRouter errored."
+          "content": "An error has occurred.  Check your server logs."
         };
       }
     )

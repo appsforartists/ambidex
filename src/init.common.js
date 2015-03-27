@@ -8,7 +8,7 @@ module.exports = {
                     },
 
   "mixins":         {
-                      "Reflux":   require("./mixins/Reflux.jsx"),
+                      "Funx":     require("./mixins/Funx.jsx"),
                       "Settings": require("./mixins/Settings.jsx"),
                       "Title":    require("./mixins/Title.jsx"),
                     },
