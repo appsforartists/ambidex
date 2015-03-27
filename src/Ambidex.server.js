@@ -1,45 +1,40 @@
-require("node-jsx").install(
-  {
-    "extension":  ".jsx",
-    "harmony":    true
-  }
-);
-
 // Adds `Promise.promisify`
 require('prfun');
 
-var fs                      = require("fs");
+var fs                = require("fs");
 
 fs = {
-  "exists":                 // Can't use Promisify because fs.exists doesn't have an error callback
-                            (path) => {
-                              return new Promise(
-                                (resolve) => {
-                                  return require("fs").exists(path, resolve);
-                                }
-                              );
-                            },
+  "exists":           // Can't use Promisify because fs.exists doesn't have an error callback
+                      (path) => {
+                        return new Promise(
+                          (resolve) => {
+                            return require("fs").exists(path, resolve);
+                          }
+                        );
+                      },
 
-  "readFile":               Promise.promisify(fs.readFile)
+  "readFile":         Promise.promisify(fs.readFile)
 };
 
-var path                    = require("path");
+var path              = require("path");
 
-var React                   = require("react/addons");
-var ReactRouter             = require("react-router");
-var mach                    = require("mach");
-var Lazy                    = require("lazy.js");
-var Reflux                  = require("isomorphic-reflux");
-var toCamelCase             = require("to-camel-case");
-var Webpack                 = require("webpack");
-var WebpackDevServer        = require("webpack-dev-server");
+var Funx              = require("funx");
+var Immutable         = require("immutable");
+var Lazy              = require("lazy.js");
+var mach              = require("mach");
+var React             = require("react/addons");
+var ReactRouter       = require("react-router");
+var Webpack           = require("webpack");
+var WebpackDevServer  = require("webpack-dev-server");
+
+var toCamelCase       = require("to-camel-case");
 
 if (WebpackDevServer)
   WebpackDevServer.prototype.listen = Promise.promisify(WebpackDevServer.prototype.listen);
 
-var createWebpackSettings           = require("./createWebpackSettings.js");
-var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext.jsx");
-var callActionsForRouterState       = require("./callActionsForRouterState.js");
+var createWebpackSettings           = require("./createWebpackSettings");
+var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext");
+var utilities                       = require("./addons/utilities");
 
 function Ambidex (
   {

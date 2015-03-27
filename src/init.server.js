@@ -7,6 +7,9 @@ require("node-jsx").install(
   }
 );
 
+require.extensions['.jsx'] = require.extensions['.js'];
+
+
 require("./polyfills.js");
 
 var recursiveCloneWithDefaults = require("./addons/utilities.js").recursiveCloneWithDefaults;
