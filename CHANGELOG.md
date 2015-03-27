@@ -1,3 +1,10 @@
+v0.2.0-beta3 - Fri, 27 Mar 2015 22:46:38 GMT
+--------------------------------------------
+
+- [6b5fb17](../../commit/6b5fb17) [changed] flux implementation from isomorphic-reflux to funx
+- [956a4ce](../../commit/956a4ce) [removed] SASS styles from TARDIS
+
+
 v0.2.0-beta2 - Sun, 01 Mar 2015 17:18:20 GMT
 --------------------------------------------
 
