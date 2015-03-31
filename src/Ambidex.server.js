@@ -288,8 +288,8 @@ Ambidex.prototype._initWebpack = function () {
 
     ).then(
       (resolvedPromises) => {
-        this._styleHTML  = resolvedPromises[1];
-        this._scriptHTML = resolvedPromises[2];
+        this._styleHTML  = resolvedPromises[1].toString();
+        this._scriptHTML = resolvedPromises[2].toString();
 
         // pass webpackStats through, since our other return values (HTML) are already exposed on this
         return resolvedPromises[0];
