@@ -1,3 +1,10 @@
+v0.2.0-beta4 - Fri, 10 Apr 2015 23:18:06 GMT
+--------------------------------------------
+
+- [5309a18](../../commit/5309a18) [added] XSS protection to Funx deserialization
+- [d43473c](../../commit/d43473c) [fixed] warning when passing Buffers to Scaffold
+
+
 v0.2.0-beta3 - Fri, 27 Mar 2015 22:46:38 GMT
 --------------------------------------------
 
