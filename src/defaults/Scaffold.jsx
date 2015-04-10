@@ -89,7 +89,18 @@ var Scaffold = React.createClass(
                                               <script
                                                 dangerouslySetInnerHTML = { 
                                                                             {
-                                                                              "__html":   `window.__ambidexStoreStateByName = ${ JSON.stringify(this.props.storeStateByName) }` 
+                                                                              "__html":   `window.__ambidexStoreStateByName = ${ 
+                                                                                            JSON.stringify(
+                                                                                              this.props.storeStateByName
+                                                                                            
+                                                                                            // This prevents XSS injections if we happen to get
+                                                                                            // </script> back from the API.
+                                                                                            //
+                                                                                            // There's probably more to be done to harden Ambidex.
+                                                                                            ).replace(
+                                                                                              /\//g, "\\/"
+                                                                                            ) 
+                                                                                          }` 
                                                                             }
                                                                           }
                                               />
