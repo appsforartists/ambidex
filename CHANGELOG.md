@@ -1,3 +1,11 @@
+v0.2.0-beta5 - Tue, 28 Apr 2015 03:37:14 GMT
+--------------------------------------------
+
+- [657c396](../../commit/657c396) [changed] JSX compilers from react-tools to jstransform@11.0.0
+- [5309a18](../../commit/5309a18) [added] XSS protection to Funx deserialization
+- [d43473c](../../commit/d43473c) [fixed] warning when passing Buffers to Scaffold
+
+
 v0.2.0-beta4 - Fri, 10 Apr 2015 23:18:06 GMT
 --------------------------------------------
 
