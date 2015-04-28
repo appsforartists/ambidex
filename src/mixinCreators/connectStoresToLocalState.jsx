@@ -13,10 +13,11 @@ var connectStoresToLocalState = function (storeNames) {
                                                         {
                                                           "store":    this.getFunxStore(storeName),
                                                           "listener": value => {
-                                                                        // Workaround for https://github.com/facebook/jstransform/issues/35
-                                                                        var changedState = {};
-                                                                        changedState[storeName] = value;
-                                                                        this.setState(changedState);
+                                                                        this.setState(
+                                                                          {
+                                                                            [storeName]:  value
+                                                                          }
+                                                                        );
                                                                       }
                                                         }
                                                       )
