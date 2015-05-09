@@ -1,16 +1,13 @@
-// Runs all app code through node-jsx, so we can use conveniences like fat-arrow lambdas
+var babelBlacklist = require("./babelBlacklist");
 
-require("node-jsx").install(
+require("babel/register")(
   {
-    "extension":  ".js",
-    "harmony":    true
+    "stage":   1,               // Allow experimental transforms (specifically, ...rest in objects)
+    "ignore":  babelBlacklist,
   }
 );
 
-require.extensions['.jsx'] = require.extensions['.js'];
-
-
-require("./polyfills.js");
+require("make-node-env-global")();
 
 var recursiveCloneWithDefaults = require("./addons/utilities.js").recursiveCloneWithDefaults;
 

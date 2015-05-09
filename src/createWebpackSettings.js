@@ -1,6 +1,8 @@
 var Webpack = require("webpack");
 var Lazy    = require("lazy.js");
 
+var babelBlacklist = require("./babelBlacklist");
+
 function getSettings (options) {
   var settings = {
     "entry":      {},
@@ -17,12 +19,13 @@ function getSettings (options) {
     "module":     {
                     "loaders":  [
                                   {
-                                    "test":   /\.jsx?$/,
-                                    "loader": "jsx-loader?harmony"
+                                    "test":     /\.jsx?$/,
+                                    "loader":   "babel-loader?stage=1",
+                                    "exclude":  babelBlacklist
                                   },
                                   {
-                                    "test":   /\.css$/,
-                                    "loader": "style-loader!css-loader!autoprefixer-loader"
+                                    "test":     /\.css$/,
+                                    "loader":   "style-loader!css-loader!autoprefixer-loader"
                                   }
                                 ]
                   },
@@ -88,7 +91,7 @@ function getSettings (options) {
 
 
     // react-hot-loader will keep the components updated when HMR happens
-    jsxLoaderSettings = settings.module.loaders.filter(
+    var jsxLoaderSettings = settings.module.loaders.filter(
       function (loader, i, loaders) {
         return loader.test.exec(".jsx");
       }
