@@ -1,15 +1,11 @@
 module.exports = {
   "addons":         {
-                      "utilities":      require("./addons/utilities.js"),
-                    },
-
-  "mixinCreators":  {
-                      "connectStoresToLocalState":   require("./mixinCreators/connectStoresToLocalState.jsx"),
+                      "utilities":    require("./addons/utilities.js"),
                     },
 
   "mixins":         {
-                      "Funx":     require("./mixins/Funx.jsx"),
-                      "Settings": require("./mixins/Settings.jsx"),
-                      "Title":    require("./mixins/Title.jsx"),
+                      "Nuclear":      require("./mixins/Nuclear.jsx"),
+                      "Settings":     require("./mixins/Settings.jsx"),
+                      "Title":        require("./mixins/Title.jsx"),
                     },
 };

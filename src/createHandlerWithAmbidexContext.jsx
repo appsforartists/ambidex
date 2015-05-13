@@ -1,6 +1,6 @@
 var React = require("react/addons");
 
-var FunxContextMixin      = require("./mixins/FunxContext.jsx");
+var NuclearContextMixin   = require("./mixins/NuclearContext.jsx");
 var SettingsContextMixin  = require("./mixins/SettingsContext.jsx");
 var TitleContextMixin     = require("./mixins/TitleContext.jsx");
 
@@ -10,8 +10,8 @@ var createHandlerWithAmbidexContext = function (optionalFeatures) {
     TitleContextMixin,
   ];
 
-  if (optionalFeatures.funx)
-    mixins.push(FunxContextMixin);
+  if (optionalFeatures.nuclear)
+    mixins.push(NuclearContextMixin);
 
   return React.createClass(
     {

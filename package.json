@@ -17,7 +17,7 @@
   },
   "peerDependencies": {
     "react": "0.13",
-    "funx": "~0.0.0",
+    "experimental-nuclear-js": "~0.0.0",
     "react-tap-event-plugin": "0.1.3",
     "react-router": "0.13"
   },
@@ -29,6 +29,7 @@
     "babel-loader": "5",
     "lazy.js": "0.4.0",
     "mach": "1.2.0",
+    "make-node-env-global": "1.0.0",
     "node-jsx": "0.13.3",
     "prfun": "1.0.2",
     "style-loader": "0.8.3",

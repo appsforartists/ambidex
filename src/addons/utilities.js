@@ -1,6 +1,26 @@
 var Lazy = require("lazy.js");
 
 var utilities = {
+  "noOp":                         function () {
+                                  },
+
+  "echo":                         function () {
+                                    switch (arguments.length) {
+                                      case 0:
+                                        return undefined;
+
+                                      case 1:
+                                        return arguments[0];
+
+                                      default:
+                                        return Array.prototype.slice.call(arguments);
+                                    };
+                                  },
+
+  "echoFirst":                    function () {
+                                    return arguments[0];
+                                  },
+
   "hasValue":                     function (value) {
                                     return value !== null && value !== undefined;
                                   },
@@ -23,28 +43,6 @@ var utilities = {
                                                         : [key, value]
                                     ).toObject();
                                   },
-
-  "promiseFromTruthyObservable":  function (stream) {
-                                    return new Promise(
-                                      (resolve, reject) => {
-                                        var streamListener = (value) => {
-                                          if (value) {
-                                            resolve(
-                                              value
-                                            );
-
-                                            stream.offValue(
-                                              streamListener
-                                            );
-                                          }
-                                        };
-
-                                        stream.onValue(
-                                          streamListener
-                                        );
-                                      }
-                                    );
-                                  }
 };
 
 module.exports = utilities;

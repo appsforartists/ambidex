@@ -18,7 +18,6 @@ fs = {
 
 var path              = require("path");
 
-var Funx              = require("funx");
 var Immutable         = require("immutable");
 var Lazy              = require("lazy.js");
 var mach              = require("mach");
@@ -26,6 +25,10 @@ var React             = require("react/addons");
 var ReactRouter       = require("react-router");
 var Webpack           = require("webpack");
 var WebpackDevServer  = require("webpack-dev-server");
+
+var {
+  Reactor
+} = require("experimental-nuclear-js");
 
 var toCamelCase       = require("to-camel-case");
 
@@ -176,7 +179,7 @@ Ambidex.prototype._reloadExternalModules = function () {
 
   // optional paths go here:
   [
-    "funxDefinitions",
+    "nuclearDefinitions",
   ].forEach(
     objectName => {
       var path = this._get(objectName + "Path");
@@ -194,12 +197,12 @@ Ambidex.prototype._reloadExternalModules = function () {
 Ambidex.prototype._initWebpack = function () {
   var settings = this._get("settings");
 
-  var webpackSettingsOptions  = {
-    "paths":  {
-                "JSX":      __dirname + "/render.client.js",
-                "STYLES":   this._get("stylesPath"),
-                "BUNDLES":  this._get("bundlesPath"),
-              }
+  var webpackSettingsOptions = {
+    "paths":              {
+                            "JSX":      __dirname + "/render.client.js",
+                            "STYLES":   this._get("stylesPath"),
+                            "BUNDLES":  this._get("bundlesPath"),
+                          },
   };
 
   if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
@@ -231,11 +234,13 @@ Ambidex.prototype._initWebpack = function () {
    */
 
   webpackSettingsOptions.constants = {
+    "NODE_ENV":           JSON.stringify(NODE_ENV),
+
     "__ambidexSettings":  JSON.stringify(settings),
     "__ambidexPaths":     Lazy(
                             [
                               "routes",
-                              "funxDefinitions",
+                              "nuclearDefinitions",
                             ]
                           ).map(
                             key => [key, JSON.stringify(this._get(key + "Path")) || "null"]
@@ -335,40 +340,34 @@ Ambidex.prototype._initStack = function () {
 // mach will hijack the `this` binding of a request processor
 // so we return a closure to preserve access to `this`
 Ambidex.prototype._getRequestProcessor = function () {
-  var settings            = this._get("settings");
-  var Scaffold            = this._get("Scaffold");
-  var funxDefinitionsPath = this._get("funxDefinitionsPath");
+  var settings                = this._get("settings");
+  var Scaffold                = this._get("Scaffold");
+  var nuclearDefinitionsPath  = this._get("nuclearDefinitionsPath");
 
-  if (funxDefinitionsPath) {
-    var funxDefinitions = Funx.addons.addRouterStateStoreToFunxDefinitions(
-      require(funxDefinitionsPath)
-    );
+  if (nuclearDefinitionsPath) {
+    var nuclearDefinitions = {
+      "ambidex":  require("./nuclearDefinitions"),
 
-    funxDefinitions.mixin = Object.assign(
-      {
-        settings
-      },
-
-      funxDefinitions.mixin
-    );
-
-    console.assert(
-      funxDefinitions.storeDefinitions.ephemeral.readyToRender,
-      "You must define a 'readyToRender' Funx store so Ambidex knows when your data has loaded."
-    );
+      ...require(nuclearDefinitionsPath),
+    };
   }
 
   return (connection) => {
     var bundlesURL = this._webpackSettings.output.publicPath;
+
+    var router = ReactRouter.create(
+      {
+        "routes":   this._get("routes"),
+        "location": connection.location.path,
+      }
+    );
 
     // mach won't wait for a result unless we return a promise,
     // so make sure we have one
     var routerRan = new Promise(
       (resolve, reject) => {
         try {
-          ReactRouter.run(
-            this._get("routes"),
-            connection.location.path,
+          router.run(
             (Handler, routerState) => resolve([Handler, routerState])
           );
 
@@ -411,24 +410,87 @@ Ambidex.prototype._getRequestProcessor = function () {
 
         // Anything that changes here probably needs to change in render.client.js too
 
+        // This is a placeholder until ReactRouter's new API ships and we can properly
+        // wait for data on the server
         var maybeWaitingForReadyToRender = Promise.resolve(null);
 
         var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
           {
-            "funx":   Boolean(funxDefinitionsPath)
+            "nuclear":   Boolean(nuclearDefinitionsPath)
           }
         );
 
-        if (funxDefinitions) {
-          var funx = new Funx(funxDefinitions);
+        if (nuclearDefinitions) {
+          var reactor = new Reactor(nuclearDefinitions);
 
-          funx.actions.routerStateChanged(
+          try {
+            var cookie = connection.request.cookies["nuclearState"];
+
+            if (cookie) {
+              reactor.deserialize(
+                JSON.parse(
+                  cookie
+                )
+              );
+            }
+          } catch (error) {
+            console.error("Error parsing cookie:", error.message);
+          }
+
+          reactor.ambidex.actions.redirect = function (
             {
-              "routerState":  Immutable.fromJS(routerState.params)
+              path,
+              routeName,
+              params    = {},
+              query     = {},
+              permanent = false,
+            }
+          ) {
+            connection.redirect(
+              permanent
+                ? 301
+                : 302,
+
+              path || router.makePath(
+                routeName,
+                params,
+                query
+              )
+            );
+          };
+
+          reactor.ambidex.actions.requireAuthentication = function (
+            {
+              routeName = "login",
+              params    = {},
+              query     = {},
+              next,
+            } = {}
+          ) {
+            if (next || !query.next)
+              query.next = connection.location.path;
+
+            reactor.ambidex.actions.redirect(
+              {
+                routeName,
+                params,
+                query,
+              }
+            );
+          };
+
+
+          reactor.ambidex.actions.loadSettings(
+            {
+              settings
             }
           );
 
-          maybeWaitingForReadyToRender = utilities.promiseFromTruthyObservable(funx.stores.readyToRender);
+          reactor.ambidex.actions.routerStateChanged(
+            {
+              routerState
+            }
+          );
         }
 
         return maybeWaitingForReadyToRender.then(
@@ -451,15 +513,15 @@ Ambidex.prototype._getRequestProcessor = function () {
                                               }
                                             }
 
-                { ...{Handler, settings, funx} }
+                { ...{Handler, settings, reactor} }
               />
             );
 
             if (serverDidRenderCallback)
               serverDidRenderCallback();
 
-            if (funx)
-              scaffoldProps["storeStateByName"] = funx.getSerializedStoreState();
+            if (reactor)
+              scaffoldProps["storeStateByName"] = reactor.serialize();
 
             return connection.html(
               [
