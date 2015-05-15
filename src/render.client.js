@@ -54,21 +54,21 @@ if (__ambidexPaths.nuclearDefinitions) {
         clearReactor  = false,
       }
     ) {
+      path = path || router.makePath(
+        routeName,
+        params,
+        query
+      );
+
+      if (path === router.getCurrentPath())
+        return;
+
       if (clearReactor) {
         reactor.dispatch = Ambidex.addons.utilities.noOp;
         reactor = createReactor();
       }
 
-      if (path) {
-        router.transitionTo(path);
-
-      } else {
-        router.transitionTo(
-          routeName,
-          params,
-          query
-        );
-      }
+      router.transitionTo(path);
     };
 
     result.ambidex.actions.requireAuthentication = function (
@@ -81,6 +81,7 @@ if (__ambidexPaths.nuclearDefinitions) {
     ) {
       if (next || !query.next)
         query.next = router.getCurrentPath();
+
 
       result.ambidex.actions.redirect(
         {
