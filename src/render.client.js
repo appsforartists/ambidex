@@ -92,6 +92,12 @@ if (__ambidexPaths.nuclearDefinitions) {
       );
     };
 
+    result.ambidex.actions.loadSettings(
+      {
+        "settings":   __ambidexSettings
+      }
+    );
+
     return result;
   };
 
