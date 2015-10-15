@@ -1,4 +1,4 @@
-var React = require("react/addons");
+var React = require("react");
 
 var utilities  = require("../addons/utilities.js");
 var TitleMixin = require("./Title.jsx");

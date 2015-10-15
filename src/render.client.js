@@ -1,23 +1,26 @@
 require("babel/polyfill");
 
 var Ambidex              = require("ambidex");
-var React                = require("react/addons");
-var ReactRouter          = require("react-router");
+var React                = require("react");
+var ReactDOM             = require("react-dom");
 var Immutable            = require("immutable");
-var injectTapEventPlugin = require("react-tap-event-plugin");
+var createBrowserHistory = require('history/lib/createBrowserHistory');
+
+var {
+  Router,
+} = require("react-router");
 
 var {
   Reactor
 } = require("experimental-nuclear-js");
 
-var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext.jsx");
+var createAmbidexContextController = require("./createAmbidexContextController");
 
 
-injectTapEventPlugin();
+var containerSelector = "#ambidexContainer";
 
-var containerSelector = "body";
-
-var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
+var history = createBrowserHistory();
+var AmbidexContextContoller = createAmbidexContextController(
   // enable/disable features based on what settings the developer has passed in
   {
     "nuclear":  Boolean(__ambidexPaths.nuclearDefinitions)
@@ -25,12 +28,6 @@ var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
 );
 
 var reactor;
-var router = ReactRouter.create(
-  {
-    "routes":   require(__ambidexPaths.routes),
-    "location": ReactRouter.HistoryLocation,
-  }
-);
 
 if (__ambidexPaths.nuclearDefinitions) {
   function createReactor () {
@@ -54,21 +51,21 @@ if (__ambidexPaths.nuclearDefinitions) {
         clearReactor  = false,
       }
     ) {
-      path = path || router.makePath(
-        routeName,
-        params,
-        query
-      );
+      // path = path || router.makePath(
+      //   routeName,
+      //   params,
+      //   query
+      // );
 
-      if (path === router.getCurrentPath())
-        return;
+      // if (path === router.getCurrentPath())
+      //   return;
 
-      if (clearReactor) {
-        reactor.dispatch = Ambidex.addons.utilities.noOp;
-        reactor = createReactor();
-      }
+      // if (clearReactor) {
+      //   reactor.dispatch = Ambidex.addons.utilities.noOp;
+      //   reactor = createReactor();
+      // }
 
-      router.transitionTo(path);
+      // router.transitionTo(path);
     };
 
     result.ambidex.actions.requireAuthentication = function (
@@ -79,18 +76,18 @@ if (__ambidexPaths.nuclearDefinitions) {
         next,
       } = {}
     ) {
-      if (next || !query.next)
-        query.next = router.getCurrentPath();
+      // if (next || !query.next)
+      //   query.next = router.getCurrentPath();
 
 
-      result.ambidex.actions.redirect(
-        {
-          routeName,
-          params,
-          query,
-          "clearReactor": true,
-        }
-      );
+      // result.ambidex.actions.redirect(
+      //   {
+      //     routeName,
+      //     params,
+      //     query,
+      //     "clearReactor": true,
+      //   }
+      // );
     };
 
     result.ambidex.actions.loadSettings(
@@ -114,37 +111,38 @@ var mountReact = function() {
     return initialRenderComplete = false;
 
   } else {
-    router.run(
-      (Handler, routerState) => {
-        if (reactor) {
-          if (initialRenderComplete) {
-            reactor.ambidex.actions.routerStateChanged(
-              {
-                routerState
-              }
-            );
-
-          } else {
-            reactor.deserialize(window.__ambidexStoreStateByName);
+    if (reactor) {
+      if (initialRenderComplete) {
+        reactor.ambidex.actions.routerStateChanged(
+          {
+            routerState
           }
-        }
-
-        // Anything that changes here needs to change in Ambidex.server.js too
-        React.render(
-          <HandlerWithAmbidexContext
-            settings  = { __ambidexSettings }
-            setTitle  = {
-                          title => {
-                            document.title = title
-                          }
-                        }
-
-            { ...{Handler, reactor} }
-          />,
-
-          container
         );
+
+      } else {
+        reactor.deserialize(window.__ambidexStoreStateByName);
       }
+    }
+
+    // Anything that changes here needs to change in Ambidex.server.js too
+    ReactDOM.render(
+      <AmbidexContextContoller
+        settings  = { __ambidexSettings }
+        setTitle  = {
+                      title => {
+                        document.title = title
+                      }
+                    }
+
+        { ...{reactor} }
+      >
+        <Router
+          routes  = { require(__ambidexPaths.routes) }
+          history = { history }
+        />
+      </AmbidexContextContoller>,
+
+      container
     );
 
     return initialRenderComplete = true;

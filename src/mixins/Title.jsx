@@ -1,4 +1,4 @@
-var React = require("react/addons");
+var React = require("react");
 
 /*  Since React components are designed to be idempotent, calling
  *  componentWillMount/DidUpdate repeatedly needs to be harmless.  

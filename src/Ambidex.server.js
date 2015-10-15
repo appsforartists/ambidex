@@ -1,6 +1,4 @@
-// Adds `Promise.promisify`
-require('prfun');
-
+var promisify         = require('prfun').promisify;
 var fs                = require("fs");
 
 fs = {
@@ -13,7 +11,7 @@ fs = {
                         );
                       },
 
-  "readFile":         Promise.promisify(fs.readFile)
+  "readFile":         promisify(fs.readFile, false, fs)
 };
 
 var path              = require("path");
@@ -21,10 +19,17 @@ var path              = require("path");
 var Immutable         = require("immutable");
 var Lazy              = require("lazy.js");
 var mach              = require("mach");
-var React             = require("react/addons");
-var ReactRouter       = require("react-router");
+var React             = require("react");
+var ReactDOMServer    = require("react-dom/server");
 var Webpack           = require("webpack");
 var WebpackDevServer  = require("webpack-dev-server");
+
+var {
+  RoutingContext,
+  match: matchRoute,
+} = require("react-router");
+
+matchRoute = promisify(matchRoute, true);
 
 var {
   Reactor
@@ -33,10 +38,10 @@ var {
 var toCamelCase       = require("to-camel-case");
 
 if (WebpackDevServer)
-  WebpackDevServer.prototype.listen = Promise.promisify(WebpackDevServer.prototype.listen);
+  WebpackDevServer.prototype.listen = promisify(WebpackDevServer.prototype.listen);
 
 var createWebpackSettings           = require("./createWebpackSettings");
-var createHandlerWithAmbidexContext = require("./createHandlerWithAmbidexContext");
+var createAmbidexContextController  = require("./createAmbidexContextController");
 var utilities                       = require("./addons/utilities");
 
 function Ambidex (
@@ -253,7 +258,7 @@ Ambidex.prototype._initWebpack = function () {
   this._webpackSettings = createWebpackSettings(webpackSettingsOptions);
 
   this.webpack      = new Webpack(this._webpackSettings);
-  this.webpack.run  = Promise.promisify(this.webpack.run);
+  this.webpack.run  = promisify(this.webpack.run);
 
   if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
     this.stack.use(
@@ -355,36 +360,29 @@ Ambidex.prototype._getRequestProcessor = function () {
   return (connection) => {
     var bundlesURL = this._webpackSettings.output.publicPath;
 
-    var router = ReactRouter.create(
-      {
-        "routes":   this._get("routes"),
-        "location": connection.location.path,
-      }
-    );
-
     // mach won't wait for a result unless we return a promise,
     // so make sure we have one
-    var routerRan = new Promise(
-      (resolve, reject) => {
-        try {
-          router.run(
-            (Handler, routerState) => resolve([Handler, routerState])
-          );
-
-        } catch (error) {
-          reject(error);
-        }
-      }
-    );
-
     return Promise.all(
       [
-        routerRan,
+        matchRoute(
+          {
+            "routes":   this._get("routes"),
+            "location": connection.location.path,
+          }
+        ),
         this._webpackRan
       ]
     ).then(
       // V8 doesn't seem to like resolving multiple values, so we have to wrap them in an extra array =\
-      ([[Handler, routerState]], webpackStats) => {
+      ([[redirectLocation, routerProps]], webpackStats) => {
+
+        if (redirectLocation) {
+          connection.redirect(
+            302,
+            redirectLocation.pathname + redirectLocation.search
+          );
+        }
+
         // Running ReactRouter against the <html> element is buggy, so we only
         // render <body> with ReactRouter and do the rest as static markup with
         // <Scaffold>
@@ -414,7 +412,7 @@ Ambidex.prototype._getRequestProcessor = function () {
         // wait for data on the server
         var maybeWaitingForReadyToRender = Promise.resolve(null);
 
-        var HandlerWithAmbidexContext = createHandlerWithAmbidexContext(
+        var AmbidexContextController = createAmbidexContextController(
           {
             "nuclear":   Boolean(nuclearDefinitionsPath)
           }
@@ -488,7 +486,7 @@ Ambidex.prototype._getRequestProcessor = function () {
 
           reactor.ambidex.actions.routerStateChanged(
             {
-              routerState
+              "routerState": routerProps
             }
           );
         }
@@ -499,8 +497,8 @@ Ambidex.prototype._getRequestProcessor = function () {
             // so we (sadly) have to fake one here to get titles to work properly.
             var serverDidRenderCallback;
 
-            scaffoldProps["body"].__html = React.renderToString(
-              <HandlerWithAmbidexContext
+            scaffoldProps["body"].__html = ReactDOMServer.renderToString(
+              <AmbidexContextController
                 setTitle                  = {
                                               title => {
                                                 scaffoldProps["title"] = title;
@@ -513,8 +511,12 @@ Ambidex.prototype._getRequestProcessor = function () {
                                               }
                                             }
 
-                { ...{Handler, settings, reactor} }
-              />
+                { ...{settings, reactor} }
+              >
+                <RoutingContext
+                  { ...routerProps }
+                />
+              </AmbidexContextController>
             );
 
             if (serverDidRenderCallback)
@@ -527,7 +529,7 @@ Ambidex.prototype._getRequestProcessor = function () {
               [
                 "<!DOCTYPE html>",
 
-                React.renderToStaticMarkup(
+                ReactDOMServer.renderToStaticMarkup(
                   <Scaffold
                     { ...scaffoldProps }
                   />

@@ -1,4 +1,4 @@
-var React = require("react/addons");
+var React = require("react");
 
 var NuclearMixin = require("./Nuclear.jsx");
 

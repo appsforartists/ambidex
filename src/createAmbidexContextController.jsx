@@ -1,10 +1,10 @@
-var React = require("react/addons");
+var React = require("react");
 
 var NuclearContextMixin   = require("./mixins/NuclearContext.jsx");
 var SettingsContextMixin  = require("./mixins/SettingsContext.jsx");
 var TitleContextMixin     = require("./mixins/TitleContext.jsx");
 
-var createHandlerWithAmbidexContext = function (optionalFeatures) {
+var createAmbidexContextController = function (optionalFeatures) {
   var mixins = [
     SettingsContextMixin,
     TitleContextMixin,
@@ -18,10 +18,10 @@ var createHandlerWithAmbidexContext = function (optionalFeatures) {
       "mixins":                     mixins,
 
       "render":                     function () {
-                                      return <this.props.Handler />;
+                                      return this.props.children;
                                     }
     }
   );
 };
 
-module.exports = createHandlerWithAmbidexContext;
+module.exports = createAmbidexContextController;

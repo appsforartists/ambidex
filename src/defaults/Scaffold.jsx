@@ -82,9 +82,12 @@ var Scaffold = React.createClass(
                                                 { styleTag }
                                               </head>
                                                                       
-                                              <body
-                                                dangerouslySetInnerHTML = { this.props.body }
-                                              />
+                                              <body>
+                                                <div 
+                                                  id                      = "ambidexContainer"
+                                                  dangerouslySetInnerHTML = { this.props.body }
+                                                />
+                                              </body>
                                                 
                                               <script
                                                 dangerouslySetInnerHTML = { 

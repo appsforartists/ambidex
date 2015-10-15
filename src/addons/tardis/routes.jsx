@@ -1,9 +1,9 @@
-var React       = require("react/addons");
+var React       = require("react");
 var ReactRouter = require("react-router");
 
 var Route  = ReactRouter.Route;
 
 module.exports =  <Route
-                    path    = "/*"
-                    handler = { require("./components/TardisGallery.jsx") }
+                    path      = "/*"
+                    component = { require("./components/TardisGallery.jsx") }
                   />;
