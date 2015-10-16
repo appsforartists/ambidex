@@ -4,7 +4,9 @@ var Ambidex              = require("ambidex");
 var React                = require("react");
 var ReactDOM             = require("react-dom");
 var Immutable            = require("immutable");
+
 var createBrowserHistory = require('history/lib/createBrowserHistory');
+var injectTapEventPlugin = require("react-tap-event-plugin")
 
 var {
   Router,
@@ -16,6 +18,7 @@ var {
 
 var createAmbidexContextController = require("./createAmbidexContextController");
 
+injectTapEventPlugin();
 
 var containerSelector = "#ambidexContainer";
 
