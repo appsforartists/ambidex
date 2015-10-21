@@ -217,6 +217,9 @@ Ambidex.prototype._initWebpack = function () {
     webpackSettingsOptions.minimizeFileSize = true;
   }
 
+  if (settings.ENABLE_SOURCE_MAPS)
+    webpackSettingsOptions.sourceMaps = settings.ENABLE_SOURCE_MAPS;
+
   if (settings.SERVER_ONLY_MODULE_NAMES)
     webpackSettingsOptions.ignoredModuleNames = settings.SERVER_ONLY_MODULE_NAMES;
 

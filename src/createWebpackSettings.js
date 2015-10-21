@@ -56,6 +56,13 @@ function getSettings (options) {
   settings.resolveLoader = settings.resolveLoader || {};
   settings.resolveLoader.root = __dirname.replace("/ambidex/src", "/ambidex/node_modules");
 
+  if (options.sourceMaps) {
+    settings.devtool = options.sourceMaps === true
+      ? "#source-map"
+      : options.sourceMaps;   // allows custom values for source map format, e.g. "#eval"  
+                              // https://webpack.github.io/docs/configuration.html#output-devtool
+  }
+
   if (options.hasOwnProperty("paths")) {
 
     if (options.paths.hasOwnProperty("BUNDLES"))
