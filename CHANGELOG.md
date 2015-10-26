@@ -1,3 +1,16 @@
+v0.2.0-beta6 - Mon, 26 Oct 2015 05:00:15 GMT
+--------------------------------------------
+
+- [b7bd447](../../commit/b7bd447) [added] ENABLE_SOURCE_MAPS setting
+- [8376a0c](../../commit/8376a0c) [fixed] restore TapEventPlugin.  Still need it for React v0.14.
+- [a26448b](../../commit/a26448b) [changed] to React v0.14 and ReactRouter v1.0-rc3
+- [795ccd8](../../commit/795ccd8) [removed] unused node-jsx dependency
+- [ddfb982](../../commit/ddfb982) [changed] redirect action to do nothing when already on the correct page
+- [fff2c1a](../../commit/fff2c1a) [fixed] missing settings after requireAuthentication call
+- [377bb16](../../commit/377bb16) [changed] Flux implementation to experimental-nuclear-js (WIP)
+- [6f77661](../../commit/6f77661) [changed] transpiler to Babel (because jstransform is now deprecated)
+
+
 v0.2.0-beta5 - Tue, 28 Apr 2015 03:37:14 GMT
 --------------------------------------------
 
