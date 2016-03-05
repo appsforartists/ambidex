@@ -1,4 +1,4 @@
-require("babel/polyfill");
+require("babel-polyfill");
 
 var Ambidex              = require("ambidex");
 var React                = require("react");

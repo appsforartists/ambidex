@@ -1,10 +1,5 @@
-var babelBlacklist = require("./babelBlacklist");
-
-require("babel/register")(
-  {
-    "stage":   1,               // Allow experimental transforms (specifically, ...rest in objects)
-    "ignore":  babelBlacklist,
-  }
+require("babel-register")(
+  require("./babelConfig")
 );
 
 require("make-node-env-global")();

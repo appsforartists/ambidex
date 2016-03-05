@@ -1,8 +1,6 @@
 var Webpack = require("webpack");
 var Lazy    = require("lazy.js");
 
-var babelBlacklist = require("./babelBlacklist");
-
 function getSettings (options) {
   var settings = {
     "entry":      {},
@@ -20,8 +18,8 @@ function getSettings (options) {
                     "loaders":  [
                                   {
                                     "test":     /\.jsx?$/,
-                                    "loader":   "babel-loader?stage=1",
-                                    "exclude":  babelBlacklist
+                                    "loader":   "babel-loader",
+                                    "query":    require("./babelConfig")
                                   },
                                   {
                                     "test":     /\.css$/,
@@ -104,7 +102,7 @@ function getSettings (options) {
       }
     )[0];
 
-    jsxLoaderSettings.loader = "react-hot-loader!" + jsxLoaderSettings.loader;
+//    jsxLoaderSettings.loader = "react-hot-loader!" + jsxLoaderSettings.loader;
 
     settings.plugins.push(
       new Webpack.HotModuleReplacementPlugin()
