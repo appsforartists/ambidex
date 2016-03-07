@@ -1,6 +1,6 @@
 {
   "name": "ambidex",
-  "version": "0.2.0-beta6",
+  "version": "0.2.0-beta7",
   "description": "Effortlessly host your React app on both the client and the server.  Some call it isomorphic JavaScript - we call it Ambidex.",
   "contributors": [
     "Brenton Simpson <git@appsforartists.com> (http://appsforartists.com)"
