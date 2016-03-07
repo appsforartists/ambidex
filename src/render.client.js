@@ -5,11 +5,11 @@ var React                = require("react");
 var ReactDOM             = require("react-dom");
 var Immutable            = require("immutable");
 
-var createBrowserHistory = require('history/lib/createBrowserHistory');
 var injectTapEventPlugin = require("react-tap-event-plugin")
 
 var {
   Router,
+  browserHistory,
 } = require("react-router");
 
 var {
@@ -22,7 +22,6 @@ injectTapEventPlugin();
 
 var containerSelector = "#ambidexContainer";
 
-var history = createBrowserHistory();
 var AmbidexContextContoller = createAmbidexContextController(
   // enable/disable features based on what settings the developer has passed in
   {
@@ -141,7 +140,7 @@ var mountReact = function() {
       >
         <Router
           routes  = { require(__ambidexPaths.routes) }
-          history = { history }
+          history = { browserHistory }
         />
       </AmbidexContextContoller>,
 

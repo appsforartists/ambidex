@@ -25,7 +25,7 @@ var Webpack           = require("webpack");
 var WebpackDevServer  = require("webpack-dev-server");
 
 var {
-  RoutingContext,
+  RouterContext,
   match: matchRoute,
 } = require("react-router");
 
@@ -516,7 +516,7 @@ Ambidex.prototype._getRequestProcessor = function () {
 
                 { ...{settings, reactor} }
               >
-                <RoutingContext
+                <RouterContext
                   { ...routerProps }
                 />
               </AmbidexContextController>
