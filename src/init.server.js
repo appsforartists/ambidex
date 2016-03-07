@@ -1,5 +1,7 @@
+var getBabelConfig = require("./getBabelConfig");
+
 require("babel-register")(
-  require("./babelConfig")
+  getBabelConfig()
 );
 
 require("make-node-env-global")();

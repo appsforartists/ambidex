@@ -1,6 +1,13 @@
 var Webpack = require("webpack");
 var Lazy    = require("lazy.js");
 
+var getBabelConfig = require("./getBabelConfig");
+
+var {
+  only: babelInclude,
+  ...babelConfig
+} = getBabelConfig();
+
 function getSettings (options) {
   var settings = {
     "entry":      {},
@@ -19,7 +26,8 @@ function getSettings (options) {
                                   {
                                     "test":     /\.jsx?$/,
                                     "loader":   "babel-loader",
-                                    "query":    require("./babelConfig")
+                                    "include":  babelInclude,
+                                    "query":    babelConfig
                                   },
                                   {
                                     "test":     /\.css$/,

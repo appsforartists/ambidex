@@ -27,7 +27,7 @@
     "babel": "6",
     "babel-loader": "6",
     "babel-polyfill": "6",
-    "babel-preset-es2015": "6",
+    "babel-preset-es2015-webpack": "6",
     "babel-preset-react": "6",
     "babel-plugin-react-transform": "2",
     "babel-plugin-syntax-trailing-function-commas": "6",
