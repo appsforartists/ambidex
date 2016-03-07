@@ -31,9 +31,9 @@ var {
 
 matchRoute = promisify(matchRoute, true);
 
-var {
-  Reactor
-} = require("experimental-nuclear-js");
+// var {
+//   Reactor
+// } = require("experimental-nuclear-js");
 
 var toCamelCase       = require("to-camel-case");
 
@@ -378,169 +378,174 @@ Ambidex.prototype._getRequestProcessor = function () {
     ).then(
       // V8 doesn't seem to like resolving multiple values, so we have to wrap them in an extra array =\
       ([[redirectLocation, routerProps]], webpackStats) => {
-
         if (redirectLocation) {
           connection.redirect(
             302,
             redirectLocation.pathname + redirectLocation.search
           );
-        }
-
-        // Running ReactRouter against the <html> element is buggy, so we only
-        // render <body> with ReactRouter and do the rest as static markup with
-        // <Scaffold>
-
-        var scaffoldProps = {
-          "title":      "",
-          "favIconSrc": settings.FAV_ICON_URL,
-          "style":      {},
-          "script":     {},
-          "body":       {},
-        };
-
-        if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
-          scaffoldProps["style"].src  = bundlesURL + "styles.js";
-          scaffoldProps["script"].src = bundlesURL + "jsx.js";
-
         } else {
-          // Inline the source if we aren't using Hot Module Replacement to reduce
-          // unneccesary requests
-          scaffoldProps["style"].__html  = this._styleHTML;
-          scaffoldProps["script"].__html = this._scriptHTML;
-        }
 
-        // Anything that changes here probably needs to change in render.client.js too
+          // Running ReactRouter against the <html> element is buggy, so we only
+          // render <body> with ReactRouter and do the rest as static markup with
+          // <Scaffold>
 
-        // This is a placeholder until ReactRouter's new API ships and we can properly
-        // wait for data on the server
-        var maybeWaitingForReadyToRender = Promise.resolve(null);
+          var scaffoldProps = {
+            "title":      "",
+            "favIconSrc": settings.FAV_ICON_URL,
+            "style":      {},
+            "script":     {},
+            "body":       {},
+          };
 
-        var AmbidexContextController = createAmbidexContextController(
-          {
-            "nuclear":   Boolean(nuclearDefinitionsPath)
+          if (settings.ENABLE_HOT_MODULE_REPLACEMENT) {
+            scaffoldProps["style"].src  = bundlesURL + "styles.js";
+            scaffoldProps["script"].src = bundlesURL + "jsx.js";
+
+          } else {
+            // Inline the source if we aren't using Hot Module Replacement to reduce
+            // unneccesary requests
+            scaffoldProps["style"].__html  = this._styleHTML;
+            scaffoldProps["script"].__html = this._scriptHTML;
           }
-        );
 
-        if (nuclearDefinitions) {
-          var reactor = new Reactor(nuclearDefinitions);
+          // Anything that changes here probably needs to change in render.client.js too
 
-          try {
-            var cookie = connection.request.cookies["nuclearState"];
+          // This is a placeholder until ReactRouter's new API ships and we can properly
+          // wait for data on the server
+          var maybeWaitingForReadyToRender = Promise.resolve(null);
 
-            if (cookie) {
-              reactor.deserialize(
-                JSON.parse(
-                  cookie
-                )
+          var AmbidexContextController = createAmbidexContextController(
+            {
+              // "nuclear":   Boolean(nuclearDefinitionsPath)
+            }
+          );
+
+          // if (nuclearDefinitions) {
+          //   var reactor = new Reactor(nuclearDefinitions);
+
+          //   try {
+          //     var cookie = connection.request.cookies["nuclearState"];
+
+          //     if (cookie) {
+          //       reactor.deserialize(
+          //         JSON.parse(
+          //           cookie
+          //         )
+          //       );
+          //     }
+          //   } catch (error) {
+          //     console.error("Error parsing cookie:", error.message);
+          //   }
+
+          //   reactor.ambidex.actions.redirect = function (
+          //     {
+          //       path,
+          //       routeName,
+          //       params    = {},
+          //       query     = {},
+          //       permanent = false,
+          //     }
+          //   ) {
+          //     connection.redirect(
+          //       permanent
+          //         ? 301
+          //         : 302,
+
+          //       path || router.makePath(
+          //         routeName,
+          //         params,
+          //         query
+          //       )
+          //     );
+          //   };
+
+          //   reactor.ambidex.actions.requireAuthentication = function (
+          //     {
+          //       routeName = "login",
+          //       params    = {},
+          //       query     = {},
+          //       next,
+          //     } = {}
+          //   ) {
+          //     if (next || !query.next)
+          //       query.next = connection.location.path;
+
+          //     reactor.ambidex.actions.redirect(
+          //       {
+          //         routeName,
+          //         params,
+          //         query,
+          //       }
+          //     );
+          //   };
+
+
+          //   reactor.ambidex.actions.loadSettings(
+          //     {
+          //       settings
+          //     }
+          //   );
+
+          //   reactor.ambidex.actions.routerStateChanged(
+          //     {
+          //       "routerState": routerProps
+          //     }
+          //   );
+          // }
+
+          return maybeWaitingForReadyToRender.then(
+            () => {
+              // There's no React lifecycle hook that fires on the server post-render
+              // so we (sadly) have to fake one here to get titles to work properly.
+              var serverDidRenderCallback;
+
+              scaffoldProps["body"].__html = ReactDOMServer.renderToString(
+                <AmbidexContextController
+                  setTitle                  = {
+                                                title => {
+                                                  scaffoldProps["title"] = title;
+                                                }
+                                              }
+
+                  listenForServerDidRender  = {
+                                                callback => {
+                                                  serverDidRenderCallback = callback;
+                                                }
+                                              }
+
+                  { 
+                    ...{
+                      settings, 
+                      // reactor
+                    } 
+                  }
+                >
+                  <RouterContext
+                    { ...routerProps }
+                  />
+                </AmbidexContextController>
+              );
+
+              // if (serverDidRenderCallback)
+              //   serverDidRenderCallback();
+
+              // if (reactor)
+              //   scaffoldProps["storeStateByName"] = reactor.serialize();
+
+              return connection.html(
+                [
+                  "<!DOCTYPE html>",
+
+                  ReactDOMServer.renderToStaticMarkup(
+                    <Scaffold
+                      { ...scaffoldProps }
+                    />
+                  )
+                ].join("\n")
               );
             }
-          } catch (error) {
-            console.error("Error parsing cookie:", error.message);
-          }
-
-          reactor.ambidex.actions.redirect = function (
-            {
-              path,
-              routeName,
-              params    = {},
-              query     = {},
-              permanent = false,
-            }
-          ) {
-            connection.redirect(
-              permanent
-                ? 301
-                : 302,
-
-              path || router.makePath(
-                routeName,
-                params,
-                query
-              )
-            );
-          };
-
-          reactor.ambidex.actions.requireAuthentication = function (
-            {
-              routeName = "login",
-              params    = {},
-              query     = {},
-              next,
-            } = {}
-          ) {
-            if (next || !query.next)
-              query.next = connection.location.path;
-
-            reactor.ambidex.actions.redirect(
-              {
-                routeName,
-                params,
-                query,
-              }
-            );
-          };
-
-
-          reactor.ambidex.actions.loadSettings(
-            {
-              settings
-            }
-          );
-
-          reactor.ambidex.actions.routerStateChanged(
-            {
-              "routerState": routerProps
-            }
           );
         }
-
-        return maybeWaitingForReadyToRender.then(
-          () => {
-            // There's no React lifecycle hook that fires on the server post-render
-            // so we (sadly) have to fake one here to get titles to work properly.
-            var serverDidRenderCallback;
-
-            scaffoldProps["body"].__html = ReactDOMServer.renderToString(
-              <AmbidexContextController
-                setTitle                  = {
-                                              title => {
-                                                scaffoldProps["title"] = title;
-                                              }
-                                            }
-
-                listenForServerDidRender  = {
-                                              callback => {
-                                                serverDidRenderCallback = callback;
-                                              }
-                                            }
-
-                { ...{settings, reactor} }
-              >
-                <RouterContext
-                  { ...routerProps }
-                />
-              </AmbidexContextController>
-            );
-
-            if (serverDidRenderCallback)
-              serverDidRenderCallback();
-
-            if (reactor)
-              scaffoldProps["storeStateByName"] = reactor.serialize();
-
-            return connection.html(
-              [
-                "<!DOCTYPE html>",
-
-                ReactDOMServer.renderToStaticMarkup(
-                  <Scaffold
-                    { ...scaffoldProps }
-                  />
-                )
-              ].join("\n")
-            );
-          }
-        );
       }
     ).catch(
       error => {

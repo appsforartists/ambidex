@@ -12,9 +12,9 @@ var {
   browserHistory,
 } = require("react-router");
 
-var {
-  Reactor
-} = require("experimental-nuclear-js");
+// var {
+//   Reactor
+// } = require("experimental-nuclear-js");
 
 var createAmbidexContextController = require("./createAmbidexContextController");
 
@@ -25,84 +25,84 @@ var containerSelector = "#ambidexContainer";
 var AmbidexContextContoller = createAmbidexContextController(
   // enable/disable features based on what settings the developer has passed in
   {
-    "nuclear":  Boolean(__ambidexPaths.nuclearDefinitions)
+    // "nuclear":  Boolean(__ambidexPaths.nuclearDefinitions)
   }
 );
 
-var reactor;
+// var reactor;
 
-if (__ambidexPaths.nuclearDefinitions) {
-  function createReactor () {
-    // Anything that changes here needs to change in Ambidex.server.js too
+// if (__ambidexPaths.nuclearDefinitions) {
+//   function createReactor () {
+//     // Anything that changes here needs to change in Ambidex.server.js too
 
-    var result = new Reactor(
-      {
-        "debug":      NODE_ENV !== "production",
-        "ambidex":    require("./nuclearDefinitions"),
+//     var result = new Reactor(
+//       {
+//         "debug":      NODE_ENV !== "production",
+//         "ambidex":    require("./nuclearDefinitions"),
 
-        ...require(__ambidexPaths.nuclearDefinitions),
-      }
-    );
+//         ...require(__ambidexPaths.nuclearDefinitions),
+//       }
+//     );
 
-    result.ambidex.actions.redirect = function (
-      {
-        path,
-        routeName,
-        params        = {},
-        query         = {},
-        clearReactor  = false,
-      }
-    ) {
-      // path = path || router.makePath(
-      //   routeName,
-      //   params,
-      //   query
-      // );
+//     result.ambidex.actions.redirect = function (
+//       {
+//         path,
+//         routeName,
+//         params        = {},
+//         query         = {},
+//         clearReactor  = false,
+//       }
+//     ) {
+//       // path = path || router.makePath(
+//       //   routeName,
+//       //   params,
+//       //   query
+//       // );
 
-      // if (path === router.getCurrentPath())
-      //   return;
+//       // if (path === router.getCurrentPath())
+//       //   return;
 
-      // if (clearReactor) {
-      //   reactor.dispatch = Ambidex.addons.utilities.noOp;
-      //   reactor = createReactor();
-      // }
+//       // if (clearReactor) {
+//       //   reactor.dispatch = Ambidex.addons.utilities.noOp;
+//       //   reactor = createReactor();
+//       // }
 
-      // router.transitionTo(path);
-    };
+//       // router.transitionTo(path);
+//     };
 
-    result.ambidex.actions.requireAuthentication = function (
-      {
-        routeName = "login",
-        params    = {},
-        query     = {},
-        next,
-      } = {}
-    ) {
-      // if (next || !query.next)
-      //   query.next = router.getCurrentPath();
+//     result.ambidex.actions.requireAuthentication = function (
+//       {
+//         routeName = "login",
+//         params    = {},
+//         query     = {},
+//         next,
+//       } = {}
+//     ) {
+//       // if (next || !query.next)
+//       //   query.next = router.getCurrentPath();
 
 
-      // result.ambidex.actions.redirect(
-      //   {
-      //     routeName,
-      //     params,
-      //     query,
-      //     "clearReactor": true,
-      //   }
-      // );
-    };
+//       // result.ambidex.actions.redirect(
+//       //   {
+//       //     routeName,
+//       //     params,
+//       //     query,
+//       //     "clearReactor": true,
+//       //   }
+//       // );
+//     };
 
-    result.ambidex.actions.loadSettings(
-      {
-        "settings":   __ambidexSettings
-      }
-    );
+//     result.ambidex.actions.loadSettings(
+//       {
+//         "settings":   __ambidexSettings
+//       }
+//     );
 
-    return result;
-  };
+//     return result;
+//   };
 
-  reactor = createReactor();
-}
+//   reactor = createReactor();
+// }
 
 var initialRenderComplete;
 
@@ -113,18 +113,18 @@ var mountReact = function() {
     return initialRenderComplete = false;
 
   } else {
-    if (reactor) {
-      if (initialRenderComplete) {
-        reactor.ambidex.actions.routerStateChanged(
-          {
-            routerState
-          }
-        );
+    // if (reactor) {
+    //   if (initialRenderComplete) {
+    //     reactor.ambidex.actions.routerStateChanged(
+    //       {
+    //         routerState
+    //       }
+    //     );
 
-      } else {
-        reactor.deserialize(window.__ambidexStoreStateByName);
-      }
-    }
+    //   } else {
+    //     reactor.deserialize(window.__ambidexStoreStateByName);
+    //   }
+    // }
 
     // Anything that changes here needs to change in Ambidex.server.js too
     ReactDOM.render(
@@ -136,7 +136,7 @@ var mountReact = function() {
                       }
                     }
 
-        { ...{reactor} }
+        // { ...{reactor} }
       >
         <Router
           routes  = { require(__ambidexPaths.routes) }

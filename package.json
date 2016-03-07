@@ -17,7 +17,6 @@
   "peerDependencies": {
     "react": "0.14",
     "react-dom": "0.14",
-    "experimental-nuclear-js": "~0.0.0",
     "react-tap-event-plugin": "0.2.1",
     "react-router": "2"
   },
