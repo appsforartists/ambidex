@@ -36,8 +36,6 @@ function getSettings (options) {
                   },
 
     "plugins":    [
-                    new Webpack.optimize.DedupePlugin(),
-                    new Webpack.optimize.OccurenceOrderPlugin(),
                   ],
   };
 
@@ -94,15 +92,29 @@ function getSettings (options) {
 
     settings.output.publicPath = options.devServerOrigin + settings.output.publicPath;
 
+    var babelPlugins = settings.module.loaders[0].query.plugins;
+    babelPlugins.push(
+      [
+        "react-transform",
+        {
+          "transforms": [
+                          {
+                            "transform":  "react-transform-hmr",
+                            "imports":    ["react"],
+                            "locals":     ["module"],
+                          },
 
-    // react-hot-loader will keep the components updated when HMR happens
-    var jsxLoaderSettings = settings.module.loaders.filter(
-      function (loader, i, loaders) {
-        return loader.test.exec(".jsx");
-      }
-    )[0];
-
-//    jsxLoaderSettings.loader = "react-hot-loader!" + jsxLoaderSettings.loader;
+                          {
+                            "transform":  "react-transform-catch-errors",
+                            "imports":    [
+                                            "react",
+                                            "redbox-react",
+                                          ],
+                          },
+                        ]
+        }
+      ]
+    );
 
     settings.plugins.push(
       new Webpack.HotModuleReplacementPlugin()

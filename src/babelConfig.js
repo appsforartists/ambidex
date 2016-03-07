@@ -12,7 +12,7 @@ module.exports = {
     "es2015", 
     "react",
   ],
-  
+
   "ignore": (filePath) => (
     filePath.includes("node_modules") && 
     !(
