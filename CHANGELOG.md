@@ -1,3 +1,22 @@
+v0.2.0-beta.10 - Tue, 08 Mar 2016 20:39:34 GMT
+----------------------------------------------
+
+- [cf67ae3](../../commit/cf67ae3) [added] support for ES2015 Modules
+- [b4e79e4](../../commit/b4e79e4) [changed] babel-loader to only process app code and Ambidex
+- [3cafcfc](../../commit/3cafcfc) [removed] experimental-nuclear-js
+- [b7bd447](../../commit/b7bd447) [added] ENABLE_SOURCE_MAPS setting
+- [8376a0c](../../commit/8376a0c) [fixed] restore TapEventPlugin.  Still need it for React v0.14.
+- [a26448b](../../commit/a26448b) [changed] to React v0.14 and ReactRouter v1.0-rc3
+- [795ccd8](../../commit/795ccd8) [removed] unused node-jsx dependency
+- [ddfb982](../../commit/ddfb982) [changed] redirect action to do nothing when already on the correct page
+- [fff2c1a](../../commit/fff2c1a) [fixed] missing settings after requireAuthentication call
+- [377bb16](../../commit/377bb16) [changed] Flux implementation to experimental-nuclear-js (WIP)
+- [6f77661](../../commit/6f77661) [changed] transpiler to Babel (because jstransform is now deprecated)
+- [657c396](../../commit/657c396) [changed] JSX compilers from react-tools to jstransform@11.0.0
+- [5309a18](../../commit/5309a18) [added] XSS protection to Funx deserialization
+- [d43473c](../../commit/d43473c) [fixed] warning when passing Buffers to Scaffold
+
+
 v0.2.0-beta9 - Mon, 07 Mar 2016 23:26:32 GMT
 --------------------------------------------
 
