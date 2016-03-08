@@ -106,6 +106,10 @@ var AmbidexContextContoller = createAmbidexContextController(
 
 var initialRenderComplete;
 
+// Routes could be an ES2015 module or a CommonJS one; import accordingly
+var routes = require(__ambidexPaths.routes);
+routes = routes.default || routes;
+
 var mountReact = function() {
   var container = document.querySelector(containerSelector);
 
@@ -139,7 +143,7 @@ var mountReact = function() {
         // { ...{reactor} }
       >
         <Router
-          routes  = { require(__ambidexPaths.routes) }
+          routes  = { routes }
           history = { browserHistory }
         />
       </AmbidexContextContoller>,

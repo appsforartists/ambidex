@@ -6,12 +6,12 @@ var getBabelConfig = function () {
   // make a copy of babelConfig, because bable-register seems to be altering it
   return {
     "plugins": [
-      "syntax-trailing-function-commas", 
-      "transform-object-rest-spread", 
+      "syntax-trailing-function-commas",
+      "transform-object-rest-spread",
     ],
 
     "presets": [
-      "es2015-webpack", 
+      "es2015",
       "react",
     ],
 

@@ -73,6 +73,9 @@ function Ambidex (
     if (!settings)
       throw new Error("Ambidex requires a settings dictionary to be passed in:\n\t`new Ambidex({\"settings\": {…}}).then(ambidex => …)`");
 
+    // Babel will wrap ES2015 modules in { "default": module }
+    settings = settings.default || settings;
+
     this._set("settings",           settings);
     this._set("middlewareInjector", middlewareInjector);
 
@@ -173,18 +176,18 @@ Ambidex.prototype._verifyPaths = function () {
 Ambidex.prototype._reloadExternalModules = function () {
   this._set(
     "Scaffold",
-    require(this._get("scaffoldPath") || __dirname + "/defaults/Scaffold.jsx")
+    requireFromModule(this._get("scaffoldPath") || __dirname + "/defaults/Scaffold.jsx")
   );
 
   this._set(
     "routes",
 
-    require(this._get("routesPath"))
+    requireFromModule(this._get("routesPath"))
   );
 
   // optional paths go here:
   [
-    "nuclearDefinitions",
+    // "nuclearDefinitions",
   ].forEach(
     objectName => {
       var path = this._get(objectName + "Path");
@@ -192,7 +195,7 @@ Ambidex.prototype._reloadExternalModules = function () {
       if (path) {
         this._set(
           objectName,
-          require(path)
+          requireFromModule(path)
         );
       }
     }
@@ -248,7 +251,7 @@ Ambidex.prototype._initWebpack = function () {
     "__ambidexPaths":     Lazy(
                             [
                               "routes",
-                              "nuclearDefinitions",
+                              // "nuclearDefinitions",
                             ]
                           ).map(
                             key => [key, JSON.stringify(this._get(key + "Path")) || "null"]
@@ -350,15 +353,15 @@ Ambidex.prototype._initStack = function () {
 Ambidex.prototype._getRequestProcessor = function () {
   var settings                = this._get("settings");
   var Scaffold                = this._get("Scaffold");
-  var nuclearDefinitionsPath  = this._get("nuclearDefinitionsPath");
+  // var nuclearDefinitionsPath  = this._get("nuclearDefinitionsPath");
 
-  if (nuclearDefinitionsPath) {
-    var nuclearDefinitions = {
-      "ambidex":  require("./nuclearDefinitions"),
+  // if (nuclearDefinitionsPath) {
+  //   var nuclearDefinitions = {
+  //     "ambidex":  require("./nuclearDefinitions"),
 
-      ...require(nuclearDefinitionsPath),
-    };
-  }
+  //     ...require(nuclearDefinitionsPath),
+  //   };
+  // }
 
   return (connection) => {
     var bundlesURL = this._webpackSettings.output.publicPath;
@@ -513,11 +516,11 @@ Ambidex.prototype._getRequestProcessor = function () {
                                                 }
                                               }
 
-                  { 
+                  {
                     ...{
-                      settings, 
+                      settings,
                       // reactor
-                    } 
+                    }
                   }
                 >
                   <RouterContext
@@ -682,6 +685,12 @@ Ambidex.prototype._startServingWebpack = function () {
   } else {
     return null;
   }
+};
+
+function requireFromModule(moduleName) {
+  var module = require(moduleName);
+
+  return module.default || module;
 };
 
 module.exports = Ambidex;
