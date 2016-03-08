@@ -19,6 +19,7 @@ var getBabelConfig = function () {
     "only": (filePath) => (
       !filePath.includes("node_modules") ||
       (
+        filePath.includes("autoprefix-style-prop") ||
         filePath.includes("ambidex") ||
         filePath.includes("gravel") ||
         filePath.includes("material-")
