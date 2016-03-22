@@ -22,7 +22,9 @@ var getBabelConfig = function () {
         filePath.includes("autoprefix-style-prop") ||
         filePath.includes("ambidex") ||
         filePath.includes("gravel") ||
-        filePath.includes("material-")
+
+        // protect the dependencies of an app whose name starts with material
+        filePath.includes("node_modules/material-")
       )
     )
   }
