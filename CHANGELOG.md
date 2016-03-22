@@ -1,3 +1,10 @@
+v0.2.0-beta.12 - Tue, 22 Mar 2016 01:33:01 GMT
+----------------------------------------------
+
+- [3231a23](../../commit/3231a23) [fixed] babel for apps whose name starts with "material-"
+- [9263d09](../../commit/9263d09) [added] react-native's display: flex to li
+
+
 v0.2.0-beta.11 - Tue, 08 Mar 2016 23:46:34 GMT
 ----------------------------------------------
 
